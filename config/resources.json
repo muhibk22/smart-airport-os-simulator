@@ -1,1 +1,9 @@
-{}
+{
+    "fuel_trucks": 8,
+    "catering_trucks": 6,
+    "cleaning_crews": 4,
+    "baggage_carts": 12,
+    "maintenance_teams": 3,
+    "jetbridges": 10,
+    "tow_tractors": 5
+}

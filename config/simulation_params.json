@@ -1,1 +1,9 @@
-{}
+{
+  "simulation_duration": 86400,
+  "flight_arrival_rate": 30,
+  "random_seed": 42,
+  "time_unit_ms": 10,
+  "max_concurrent_flights": 50,
+  "memory_size_frames": 1024,
+  "page_size_bytes": 4096
+}
