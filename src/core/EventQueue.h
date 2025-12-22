@@ -4,6 +4,7 @@
 #include "Event.h"
 #include <queue>
 #include <vector>
+#include <functional>
 #include <pthread.h>
 
 class EventQueue {
