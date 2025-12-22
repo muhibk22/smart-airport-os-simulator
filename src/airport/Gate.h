@@ -5,6 +5,8 @@
 #include <string>
 #include <pthread.h>
 
+using namespace std;
+
 enum GateType {
     GATE_INTERNATIONAL,
     GATE_DOMESTIC

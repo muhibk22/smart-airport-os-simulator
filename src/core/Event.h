@@ -3,6 +3,8 @@
 
 #include <string>
 
+using namespace std;
+
 enum EventType {
     FLIGHT_ARRIVAL,
     FLIGHT_DEPARTURE,
@@ -21,7 +23,7 @@ protected:
     EventType type;
     long long event_time;
     int priority;
-    std::string description;
+    string description;
     
 public:
     Event(EventType t, long long time, int pri = 0);
@@ -30,7 +32,7 @@ public:
     EventType get_type() const { return type; }
     long long get_time() const { return event_time; }
     int get_priority() const { return priority; }
-    std::string get_description() const { return description; }
+    string get_description() const { return description; }
     
     // For priority queue ordering (earlier time = higher priority)
     bool operator<(const Event& other) const {

@@ -5,10 +5,12 @@
 #include <string>
 #include <pthread.h>
 
+using namespace std;
+
 class Runway {
 private:
     int id;
-    std::string name;
+    string name;
     bool available;
     Flight* current_flight;
     
@@ -21,7 +23,7 @@ private:
     pthread_cond_t runway_clear;
     
 public:
-    Runway(int runway_id, const std::string& runway_name);
+    Runway(int runway_id, const string& runway_name);
     ~Runway();
     
     // Reserve runway (short critical section)
@@ -35,7 +37,7 @@ public:
     
     // Getters
     int get_id() const { return id; }
-    std::string get_name() const { return name; }
+    string get_name() const { return name; }
     bool is_available();
     Flight* get_current_flight();
 };

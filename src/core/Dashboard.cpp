@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <cstring>
 
+using namespace std;
+
 Dashboard::Dashboard() {
     pthread_rwlock_init(&dashboard_lock, nullptr);
     

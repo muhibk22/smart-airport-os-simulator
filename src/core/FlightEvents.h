@@ -48,10 +48,10 @@ public:
 class ServiceStartEvent : public Event {
 private:
     Flight* flight;
-    std::string service_name;
+    string service_name;
     
 public:
-    ServiceStartEvent(Flight* f, const std::string& service, long long time);
+    ServiceStartEvent(Flight* f, const string& service, long long time);
     ~ServiceStartEvent() override = default;
     
     void process() override;
@@ -60,10 +60,10 @@ public:
 class ServiceEndEvent : public Event {
 private:
     Flight* flight;
-    std::string service_name;
+    string service_name;
     
 public:
-    ServiceEndEvent(Flight* f, const std::string& service, long long time);
+    ServiceEndEvent(Flight* f, const string& service, long long time);
     ~ServiceEndEvent() override = default;
     
     void process() override;

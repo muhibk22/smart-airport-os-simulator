@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iomanip>
 
+using namespace std;
+
 Logger* Logger::instance = nullptr;
 
 Logger::Logger() {
@@ -12,14 +14,14 @@ Logger::Logger() {
     }
     
     // Open log files
-    scheduling_log.open("logs/scheduling.log", std::ios::out | std::ios::trunc);
-    memory_log.open("logs/memory.log", std::ios::out | std::ios::trunc);
-    events_log.open("logs/events.log", std::ios::out | std::ios::trunc);
-    performance_log.open("logs/performance.log", std::ios::out | std::ios::trunc);
+    scheduling_log.open("logs/scheduling.log", ios::out | ios::trunc);
+    memory_log.open("logs/memory.log", ios::out | ios::trunc);
+    events_log.open("logs/events.log", ios::out | ios::trunc);
+    performance_log.open("logs/performance.log", ios::out | ios::trunc);
     
     if (!scheduling_log.is_open() || !memory_log.is_open() || 
         !events_log.is_open() || !performance_log.is_open()) {
-        std::cerr << "Error: Could not open log files\n";
+        cerr << "Error: Could not open log files\n";
     }
 }
 

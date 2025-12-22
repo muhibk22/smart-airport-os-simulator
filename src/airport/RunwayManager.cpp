@@ -2,6 +2,8 @@
 #include "../core/Logger.h"
 #include <sstream>
 
+using namespace std;
+
 RunwayManager::RunwayManager() {
     pthread_mutex_init(&manager_mutex, nullptr);
 }

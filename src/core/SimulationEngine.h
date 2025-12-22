@@ -11,6 +11,8 @@
 #include <pthread.h>
 #include <atomic>
 
+using namespace std;
+
 class SimulationEngine {
 private:
     TimeManager* time_manager;
@@ -27,8 +29,15 @@ private:
     pthread_t dashboard_updater_thread;
     pthread_t crisis_monitor_thread;
     
-    std::atomic<bool> simulation_running;
+    atomic<bool> simulation_running;
     long long simulation_duration;
+    
+    // Flight tracking for dashboard
+    atomic<int> active_flight_count;
+    atomic<int> flights_landing;
+    atomic<int> flights_at_gates;
+    atomic<int> flights_departing;
+    atomic<int> total_flights_handled;
     
     // Thread functions
     static void* event_dispatcher_func(void* arg);
@@ -54,6 +63,14 @@ public:
     RunwayManager* get_runway_manager() { return runway_manager; }
     GateManager* get_gate_manager() { return gate_manager; }
     TaxiwayGraph* get_taxiway_graph() { return taxiway_graph; }
+    
+    // Flight tracking updates
+    void increment_active_flights() { active_flight_count++; }
+    void decrement_active_flights() { active_flight_count--; }
+    void set_flights_landing(int n) { flights_landing = n; }
+    void set_flights_at_gates(int n) { flights_at_gates = n; }
+    void set_flights_departing(int n) { flights_departing = n; }
+    void increment_total_handled() { total_flights_handled++; }
 };
 
 #endif // SIMULATION_ENGINE_H

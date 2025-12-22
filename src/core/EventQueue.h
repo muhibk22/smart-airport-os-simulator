@@ -7,10 +7,12 @@
 #include <functional>
 #include <pthread.h>
 
+using namespace std;
+
 class EventQueue {
 private:
-    std::priority_queue<Event*, std::vector<Event*>, 
-                        std::function<bool(Event*, Event*)>> queue;
+    priority_queue<Event*, vector<Event*>, 
+                        function<bool(Event*, Event*)>> queue;
     pthread_mutex_t queue_mutex;
     pthread_cond_t event_available;
     

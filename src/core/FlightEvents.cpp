@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <cstdlib>
 
+using namespace std;
+
 // ========== Flight Lifecycle pthread Handler ==========
 
 void* flight_lifecycle_handler(void* arg) {
@@ -19,6 +21,9 @@ void* flight_lifecycle_handler(void* arg) {
     std::ostringstream log_msg;
     log_msg << "[FLIGHT_THREAD] Flight " << flight->flight_id << " thread started";
     logger->log_event(log_msg.str());
+    
+    // Track this flight as active
+    engine->increment_active_flights();
     
     // ===== PHASE 1: ARRIVAL & RUNWAY REQUEST =====
     flight->status = APPROACHING;
@@ -51,6 +56,7 @@ void* flight_lifecycle_handler(void* arg) {
         log_msg << "[FLIGHT] " << flight->flight_id << " FAILED to get runway after " 
                 << MAX_ATTEMPTS << " attempts";
         logger->log_event(log_msg.str());
+        engine->decrement_active_flights();
         delete data;
         return nullptr;
     }
@@ -102,6 +108,7 @@ void* flight_lifecycle_handler(void* arg) {
         log_msg.str("");
         log_msg << "[FLIGHT] " << flight->flight_id << " FAILED to get gate";
         logger->log_event(log_msg.str());
+        engine->decrement_active_flights();
         delete data;
         return nullptr;
     }
@@ -134,6 +141,10 @@ void* flight_lifecycle_handler(void* arg) {
     logger->log_event(log_msg.str());
     
     flight->status = DEPARTED;
+    
+    // Update counters
+    engine->decrement_active_flights();
+    engine->increment_total_handled();
     
     delete data;
     return nullptr;

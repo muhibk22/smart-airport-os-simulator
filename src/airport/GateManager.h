@@ -5,17 +5,19 @@
 #include <vector>
 #include <pthread.h>
 
+using namespace std;
+
 class GateManager {
 private:
-    std::vector<Gate*> gates;
+    vector<Gate*> gates;
     pthread_mutex_t manager_mutex;
     
     // Banker's algorithm data structures
-    std::vector<int> available;    // Available resources per gate type
-    std::vector<std::vector<int>> allocation;  // Current allocation
-    std::vector<std::vector<int>> maximum;     // Maximum need
+    vector<int> available;    // Available resources per gate type
+    vector<vector<int>> allocation;  // Current allocation
+    vector<vector<int>> maximum;     // Maximum need
     
-    bool is_safe_state(int flight_index, const std::vector<int>& request);
+    bool is_safe_state(int flight_index, const vector<int>& request);
     
 public:
     GateManager();

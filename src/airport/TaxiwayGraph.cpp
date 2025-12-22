@@ -3,6 +3,8 @@
 #include <unordered_set>
 #include <algorithm>
 
+using namespace std;
+
 TaxiwayGraph::TaxiwayGraph() : gridlock_threshold_seconds(300) {
     pthread_mutex_init(&graph_mutex, nullptr);
 }
@@ -11,7 +13,7 @@ TaxiwayGraph::~TaxiwayGraph() {
     pthread_mutex_destroy(&graph_mutex);
 }
 
-void TaxiwayGraph::add_node(int id, const std::string& name) {
+void TaxiwayGraph::add_node(int id, const string& name) {
     pthread_mutex_lock(&graph_mutex);
     
     TaxiwayNode node;
@@ -39,10 +41,10 @@ void TaxiwayGraph::add_edge(int from, int to, int weight) {
     pthread_mutex_unlock(&graph_mutex);
 }
 
-std::vector<int> TaxiwayGraph::find_path(int from, int to) {
+vector<int> TaxiwayGraph::find_path(int from, int to) {
     pthread_mutex_lock(&graph_mutex);
     
-    std::vector<int> path;
+    vector<int> path;
     
     if (from == to) {
         path.push_back(from);
@@ -51,9 +53,9 @@ std::vector<int> TaxiwayGraph::find_path(int from, int to) {
     }
     
     // BFS for shortest path
-    std::queue<int> q;
-    std::unordered_map<int, int> parent;
-    std::unordered_set<int> visited;
+    queue<int> q;
+    unordered_map<int, int> parent;
+    unordered_set<int> visited;
     
     q.push(from);
     visited.insert(from);
@@ -88,14 +90,14 @@ std::vector<int> TaxiwayGraph::find_path(int from, int to) {
             path.push_back(current);
             current = parent[current];
         }
-        std::reverse(path.begin(), path.end());
+        reverse(path.begin(), path.end());
     }
     
     pthread_mutex_unlock(&graph_mutex);
     return path;
 }
 
-bool TaxiwayGraph::try_reserve_path(const std::vector<int>& path, int flight_id) {
+bool TaxiwayGraph::try_reserve_path(const vector<int>& path, int flight_id) {
     pthread_mutex_lock(&graph_mutex);
     
     // Check if all nodes in path are free
@@ -122,7 +124,7 @@ bool TaxiwayGraph::try_reserve_path(const std::vector<int>& path, int flight_id)
     return true;
 }
 
-void TaxiwayGraph::release_path(const std::vector<int>& path) {
+void TaxiwayGraph::release_path(const vector<int>& path) {
     pthread_mutex_lock(&graph_mutex);
     
     for (int node_id : path) {

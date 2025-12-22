@@ -7,6 +7,8 @@
 #include <vector>
 #include <unistd.h>
 
+using namespace std;
+
 int main() {
     std::cout << "╔═══════════════════════════════════════════════════════════════╗\n";
     std::cout << "║          Simple pthread Test - Airport Infrastructure         ║\n";

@@ -4,6 +4,8 @@
 #include "Aircraft.h"
 #include <string>
 
+using namespace std;
+
 enum FlightType {
     DOMESTIC,
     INTERNATIONAL

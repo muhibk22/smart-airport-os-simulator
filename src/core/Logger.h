@@ -5,6 +5,8 @@
 #include <fstream>
 #include <pthread.h>
 
+using namespace std;
+
 enum LogChannel {
     SCHEDULING_LOG,
     MEMORY_LOG,
@@ -14,14 +16,10 @@ enum LogChannel {
 
 class Logger {
 private:
-    std::ofstream scheduling_log;
-    std::ofstream memory_log;
-    std::ofstream events_log;
-    std::ofstream performance_log;
-    
-    pthread_mutex_t log_mutex[4];
-    
     static Logger* instance;
+    
+    ofstream log_files[4];
+    pthread_mutex_t log_mutexes[4];
     
     Logger();
     
@@ -30,11 +28,11 @@ public:
     
     static Logger* get_instance();
     
-    void log(LogChannel channel, const std::string& message);
-    void log_scheduling(const std::string& message);
-    void log_memory(const std::string& message);
-    void log_event(const std::string& message);
-    void log_performance(const std::string& message);
+    void log(LogChannel channel, const string& message);
+    void log_scheduling(const string& message);
+    void log_memory(const string& message);
+    void log_event(const string& message);
+    void log_performance(const string& message);
     
     void flush_all();
 };

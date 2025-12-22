@@ -3,6 +3,8 @@
 #include <sstream>
 #include <algorithm>
 
+using namespace std;
+
 GateManager::GateManager() {
     pthread_mutex_init(&manager_mutex, nullptr);
 }

@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <iostream>
 
+using namespace std;
+
 SimulationEngine::SimulationEngine() {
     time_manager = new TimeManager();
     event_queue = new EventQueue();
@@ -16,6 +18,13 @@ SimulationEngine::SimulationEngine() {
     
     simulation_running = false;
     simulation_duration = 86400; // 24 hours default
+    
+    // Initialize flight counters
+    active_flight_count = 0;
+    flights_landing = 0;
+    flights_at_gates = 0;
+    flights_departing = 0;
+    total_flights_handled = 0;
 }
 
 SimulationEngine::~SimulationEngine() {
@@ -145,18 +154,21 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         // Update dashboard every 1 second
         sleep(1);
         
-        // Collect metrics - use brace init to zero all fields
+        // Collect metrics from atomic counters
         DashboardMetrics metrics = {};
         metrics.current_sim_time = engine->time_manager->get_current_time();
-        metrics.active_flights = 0;
-        metrics.flights_at_gates = 0;
-        metrics.flights_landing = 0;
-        metrics.flights_departing = 0;
+        metrics.active_flights = engine->active_flight_count.load();
+        metrics.flights_at_gates = engine->flights_at_gates.load();
+        metrics.flights_landing = engine->flights_landing.load();
+        metrics.flights_departing = engine->flights_departing.load();
         metrics.available_runways = engine->runway_manager->get_available_runway_count();
         metrics.available_gates = engine->gate_manager->get_available_gate_count();
-        metrics.runway_utilization = 0.0;
-        metrics.gate_utilization = 0.0;
-        metrics.total_flights_handled = 0;
+        
+        // Calculate utilization
+        metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0;
+        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0;
+        
+        metrics.total_flights_handled = engine->total_flights_handled.load();
         metrics.average_turnaround_time = 0.0;
         metrics.on_time_performance = 0.0;
         metrics.page_fault_count = 0;

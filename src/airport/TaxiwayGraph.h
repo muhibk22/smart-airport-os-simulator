@@ -6,9 +6,11 @@
 #include <string>
 #include <pthread.h>
 
+using namespace std;
+
 struct TaxiwayNode {
     int id;
-    std::string name;
+    string name;
     bool occupied;
     int occupying_flight_id;
 };
@@ -21,9 +23,9 @@ struct TaxiwayEdge {
 
 class TaxiwayGraph {
 private:
-    std::vector<TaxiwayNode> nodes;
-    std::unordered_map<int, std::vector<int>> adjacency_list;
-    std::vector<TaxiwayEdge> edges;
+    vector<TaxiwayNode> nodes;
+    unordered_map<int, vector<int>> adjacency_list;
+    vector<TaxiwayEdge> edges;
     
     pthread_mutex_t graph_mutex;
     
@@ -34,17 +36,17 @@ public:
     TaxiwayGraph();
     ~TaxiwayGraph();
     
-    void add_node(int id, const std::string& name);
+    void add_node(int id, const string& name);
     void add_edge(int from, int to, int weight);
     
     // Find path between two nodes (simple BFS)
-    std::vector<int> find_path(int from, int to);
+    vector<int> find_path(int from, int to);
     
     // Reserve path segments
-    bool try_reserve_path(const std::vector<int>& path, int flight_id);
+    bool try_reserve_path(const vector<int>& path, int flight_id);
     
     // Release path
-    void release_path(const std::vector<int>& path);
+    void release_path(const vector<int>& path);
     
     // Gridlock detection
     bool detect_gridlock();

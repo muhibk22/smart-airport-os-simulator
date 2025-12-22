@@ -5,9 +5,11 @@
 #include <vector>
 #include <pthread.h>
 
+using namespace std;
+
 class RunwayManager {
 private:
-    std::vector<Runway*> runways;
+    vector<Runway*> runways;
     pthread_mutex_t manager_mutex;
     
 public:
@@ -26,7 +28,7 @@ public:
     Runway* get_runway(int id);
     
     // Get all runways
-    std::vector<Runway*> get_all_runways();
+    vector<Runway*> get_all_runways();
     
     // Statistics
     int get_available_runway_count();

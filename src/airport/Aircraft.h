@@ -3,6 +3,8 @@
 
 #include <string>
 
+using namespace std;
+
 enum AircraftType {
     A380,      // Heavy, 500+ passengers
     B777,      // Heavy, 350+ passengers

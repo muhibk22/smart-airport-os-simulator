@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include <string>
 
+using namespace std;
+
 struct DashboardMetrics {
     int active_flights;
     int flights_at_gates;
