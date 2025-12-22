@@ -163,9 +163,9 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         metrics.available_runways = engine->runway_manager->get_available_runway_count();
         metrics.available_gates = engine->gate_manager->get_available_gate_count();
         
-        // Calculate utilization
-        metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0 * 100.0;
-        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0 * 100.0;
+        // Calculate utilization (0.0 to 1.0 - dashboard multiplies by 100)
+        metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0;
+        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0;
         
         metrics.total_flights_handled = engine->total_flights_handled.load();
         metrics.average_turnaround_time = 0.0;

@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "../airport/RunwayManager.h"
 #include "../airport/GateManager.h"
+#include "../scheduling/HMFQQueue.h"
 #include <sstream>
 #include <unistd.h>
 #include <cstdlib>
@@ -18,12 +19,17 @@ void* flight_lifecycle_handler(void* arg) {
     
     Logger* logger = Logger::get_instance();
     
-    std::ostringstream log_msg;
+    ostringstream log_msg;
     log_msg << "[FLIGHT_THREAD] Flight " << flight->flight_id << " thread started";
     logger->log_event(log_msg.str());
     
     // Track this flight as active
     engine->increment_active_flights();
+    
+    // Create scheduler operation for this flight
+    HMFQQueue* scheduler = engine->get_scheduler();
+    Operation* landing_op = scheduler->create_operation(flight, OP_LANDING, arrival_time);
+    scheduler->enqueue(landing_op);
     
     // ===== PHASE 1: ARRIVAL & RUNWAY REQUEST =====
     flight->status = APPROACHING;
@@ -141,6 +147,9 @@ void* flight_lifecycle_handler(void* arg) {
     logger->log_event(log_msg.str());
     
     flight->status = DEPARTED;
+    
+    // Complete scheduler operation
+    scheduler->complete(landing_op);
     
     // Update counters
     engine->decrement_active_flights();
