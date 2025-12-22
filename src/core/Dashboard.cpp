@@ -6,8 +6,21 @@
 Dashboard::Dashboard() {
     pthread_rwlock_init(&dashboard_lock, nullptr);
     
-    // Initialize metrics
-    memset(&metrics, 0, sizeof(DashboardMetrics));
+    // Initialize all metrics to zero
+    metrics.active_flights = 0;
+    metrics.flights_at_gates = 0;
+    metrics.flights_landing = 0;
+    metrics.flights_departing = 0;
+    metrics.available_runways = 0;
+    metrics.available_gates = 0;
+    metrics.runway_utilization = 0.0;
+    metrics.gate_utilization = 0.0;
+    metrics.total_flights_handled = 0;
+    metrics.average_turnaround_time = 0.0;
+    metrics.on_time_performance = 0.0;
+    metrics.page_fault_count = 0;
+    metrics.page_fault_rate = 0.0;
+    metrics.current_sim_time = 0;
 }
 
 Dashboard::~Dashboard() {

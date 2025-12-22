@@ -190,21 +190,14 @@ void SimulationEngine::run() {
     
     logger->log_event("[SimulationEngine] All threads started");
     
-    // Main simulation loop
-    long long start_time = time_manager->get_current_time();
-    
+    // Main simulation loop - advance time with real delays
+    // 1 simulation time unit = 100ms real time (for testing)
     while (simulation_running) {
-        long long current_time = time_manager->get_current_time();
-        
-        if (current_time - start_time >= simulation_duration) {
-            logger->log_event("[SimulationEngine] Simulation duration reached");
-            break;
-        }
-        
-        // Advance time
+        // Advance simulation time
         time_manager->advance_time(1);
         
-        sleep(0); // Yield to other threads
+        // Wait 100ms between time advances (10 sim-seconds per real second)
+        usleep(100000);  // 100ms
     }
     
     stop();
