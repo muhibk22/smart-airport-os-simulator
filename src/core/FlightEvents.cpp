@@ -71,6 +71,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     // ===== PHASE 2: LANDING (runway reserved, using it) =====
     flight->status = LANDING;
+    engine->increment_flights_landing();  // Track landing
     log_msg.str("");
     log_msg << "[FLIGHT] " << flight->flight_id << " landing on runway " << runway->get_name();
     logger->log_event(log_msg.str());
@@ -88,6 +89,8 @@ void* flight_lifecycle_handler(void* arg) {
     log_msg.str("");
     log_msg << "[FLIGHT] " << flight->flight_id << " cleared runway " << runway->get_name();
     logger->log_event(log_msg.str());
+    
+    engine->decrement_flights_landing();  // No longer landing
     
     // ===== PHASE 4: TAXIING TO GATE =====
     flight->status = TAXIING_TO_GATE;
@@ -123,6 +126,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     // ===== PHASE 6: AT GATE & SERVICING =====
     flight->status = AT_GATE;
+    engine->increment_flights_at_gates();  // Track at gate
     log_msg.str("");
     log_msg << "[FLIGHT] " << flight->flight_id << " at gate " << gate->get_id();
     logger->log_event(log_msg.str());
@@ -137,8 +141,10 @@ void* flight_lifecycle_handler(void* arg) {
     
     // ===== PHASE 7: RELEASE GATE & DEPARTURE =====
     engine->get_gate_manager()->release_gate(gate->get_id());
+    engine->decrement_flights_at_gates();  // No longer at gate
     
     flight->status = DEPARTING;
+    engine->increment_flights_departing();  // Track departing
     flight->actual_departure_time = engine->get_time_manager()->get_current_time();
     
     log_msg.str("");
@@ -147,6 +153,7 @@ void* flight_lifecycle_handler(void* arg) {
     logger->log_event(log_msg.str());
     
     flight->status = DEPARTED;
+    engine->decrement_flights_departing();  // No longer departing
     
     // Complete scheduler operation
     scheduler->complete(landing_op);

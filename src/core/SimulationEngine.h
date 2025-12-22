@@ -73,9 +73,12 @@ public:
     // Flight tracking updates
     void increment_active_flights() { active_flight_count++; }
     void decrement_active_flights() { active_flight_count--; }
-    void set_flights_landing(int n) { flights_landing = n; }
-    void set_flights_at_gates(int n) { flights_at_gates = n; }
-    void set_flights_departing(int n) { flights_departing = n; }
+    void increment_flights_landing() { flights_landing++; }
+    void decrement_flights_landing() { flights_landing--; }
+    void increment_flights_at_gates() { flights_at_gates++; }
+    void decrement_flights_at_gates() { flights_at_gates--; }
+    void increment_flights_departing() { flights_departing++; }
+    void decrement_flights_departing() { flights_departing--; }
     void increment_total_handled() { total_flights_handled++; }
 };
 
