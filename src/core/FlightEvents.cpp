@@ -69,7 +69,7 @@ void* flight_lifecycle_handler(void* arg) {
     log_msg << "[FLIGHT] " << flight->flight_id << " landing on runway " << runway->get_name();
     logger->log_event(log_msg.str());
     
-    sleep(2); // Simulate 90 seconds as 2 seconds for testing
+    sleep(5); // Simulate landing - longer so dashboard can see it
     
     flight->actual_arrival_time = engine->get_time_manager()->get_current_time();
     
@@ -85,7 +85,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     // ===== PHASE 4: TAXIING TO GATE =====
     flight->status = TAXIING_TO_GATE;
-    sleep(1); // Simulate taxi time
+    sleep(3); // Simulate taxi time - longer so dashboard can see it
     
     // ===== PHASE 5: GATE REQUEST =====
     Gate* gate = nullptr;
