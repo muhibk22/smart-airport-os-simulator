@@ -96,6 +96,8 @@ void SimulationEngine::generate_initial_flights() {
 void* SimulationEngine::event_dispatcher_func(void* arg) {
     SimulationEngine* engine = static_cast<SimulationEngine*>(arg);
     
+    engine->logger->log_event("[EventDispatcher] Started");
+    
     while (engine->simulation_running) {
         Event* event = engine->event_queue->peek();
         
@@ -105,25 +107,34 @@ void* SimulationEngine::event_dispatcher_func(void* arg) {
         }
         
         long long current_time = engine->time_manager->get_current_time();
+        long long event_time = event->get_time();
         
-        if (event->get_time() <= current_time) {
+        engine->logger->log_event("[EventDispatcher] Checking event at time " + 
+                                  std::to_string(event_time) + 
+                                  ", current time: " + std::to_string(current_time));
+        
+        if (event_time <= current_time) {
             // Process event
             event = engine->event_queue->pop();
             
             if (event) {
+                engine->logger->log_event("[EventDispatcher] Processing: " + 
+                                         event->get_description());
+                
                 event->process();
                 
-                engine->logger->log_event("[EventDispatcher] Processed: " + 
+                engine->logger->log_event("[EventDispatcher] Completed: " + 
                                          event->get_description());
                 
                 delete event;
             }
         } else {
             // Event in future, wait
-            usleep(10000); // 10ms
+            usleep(50000); // 50ms
         }
     }
     
+    engine->logger->log_event("[EventDispatcher] Stopped");
     return nullptr;
 }
 
@@ -134,14 +145,17 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         // Update dashboard every 1 second
         sleep(1);
         
-        // Collect metrics
-        DashboardMetrics metrics;
+        // Collect metrics - use brace init to zero all fields
+        DashboardMetrics metrics = {};
         metrics.current_sim_time = engine->time_manager->get_current_time();
-        metrics.active_flights = 0; // Would count from flight list
+        metrics.active_flights = 0;
+        metrics.flights_at_gates = 0;
+        metrics.flights_landing = 0;
+        metrics.flights_departing = 0;
         metrics.available_runways = engine->runway_manager->get_available_runway_count();
         metrics.available_gates = engine->gate_manager->get_available_gate_count();
-        metrics.runway_utilization = 0.0; // Would calculate
-        metrics.gate_utilization = 0.0; // Would calculate
+        metrics.runway_utilization = 0.0;
+        metrics.gate_utilization = 0.0;
         metrics.total_flights_handled = 0;
         metrics.average_turnaround_time = 0.0;
         metrics.on_time_performance = 0.0;
