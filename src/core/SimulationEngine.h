@@ -8,10 +8,14 @@
 #include "../airport/RunwayManager.h"
 #include "../airport/GateManager.h"
 #include "../airport/TaxiwayGraph.h"
+#include "../scheduling/HMFQQueue.h"
 #include <pthread.h>
 #include <atomic>
 
 using namespace std;
+
+// Forward declaration
+class HMFQQueue;
 
 class SimulationEngine {
 private:
@@ -23,6 +27,7 @@ private:
     RunwayManager* runway_manager;
     GateManager* gate_manager;
     TaxiwayGraph* taxiway_graph;
+    HMFQQueue* scheduler;  // HMFQ-PPRA Scheduler
     
     // Control threads
     pthread_t event_dispatcher_thread;
@@ -63,6 +68,7 @@ public:
     RunwayManager* get_runway_manager() { return runway_manager; }
     GateManager* get_gate_manager() { return gate_manager; }
     TaxiwayGraph* get_taxiway_graph() { return taxiway_graph; }
+    HMFQQueue* get_scheduler() { return scheduler; }
     
     // Flight tracking updates
     void increment_active_flights() { active_flight_count++; }

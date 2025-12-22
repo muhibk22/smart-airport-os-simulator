@@ -15,6 +15,7 @@ SimulationEngine::SimulationEngine() {
     runway_manager = new RunwayManager();
     gate_manager = new GateManager();
     taxiway_graph = new TaxiwayGraph();
+    scheduler = new HMFQQueue();  // HMFQ-PPRA Scheduler
     
     simulation_running = false;
     simulation_duration = 86400; // 24 hours default
@@ -38,6 +39,7 @@ SimulationEngine::~SimulationEngine() {
     delete runway_manager;
     delete gate_manager;
     delete taxiway_graph;
+    delete scheduler;
 }
 
 void SimulationEngine::load_configuration() {
@@ -151,9 +153,6 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
     SimulationEngine* engine = static_cast<SimulationEngine*>(arg);
     
     while (engine->simulation_running) {
-        // Update dashboard every 1 second
-        sleep(1);
-        
         // Collect metrics from atomic counters
         DashboardMetrics metrics = {};
         metrics.current_sim_time = engine->time_manager->get_current_time();
@@ -165,8 +164,8 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         metrics.available_gates = engine->gate_manager->get_available_gate_count();
         
         // Calculate utilization
-        metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0;
-        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0;
+        metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0 * 100.0;
+        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0 * 100.0;
         
         metrics.total_flights_handled = engine->total_flights_handled.load();
         metrics.average_turnaround_time = 0.0;
@@ -176,6 +175,9 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         
         engine->dashboard->update_metrics(metrics);
         engine->dashboard->display();
+        
+        // Update every 500ms for more responsive display
+        usleep(500000);
     }
     
     return nullptr;

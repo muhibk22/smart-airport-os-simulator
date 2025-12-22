@@ -5,7 +5,7 @@ echo "Compiling with g++ directly..."
 # Create logs directory if needed
 mkdir -p logs
 
-# Compile simple_test
+# Compile simple_test with scheduler
 g++ -std=c++17 -pthread -I src \
     src/core/TimeManager.cpp \
     src/core/Event.cpp \
@@ -21,6 +21,14 @@ g++ -std=c++17 -pthread -I src \
     src/airport/Gate.cpp \
     src/airport/GateManager.cpp \
     src/airport/TaxiwayGraph.cpp \
+    src/scheduling/Operation.cpp \
+    src/scheduling/PISCalculator.cpp \
+    src/scheduling/AgingManager.cpp \
+    src/scheduling/QuantumManager.cpp \
+    src/scheduling/PreemptionManager.cpp \
+    src/scheduling/HMFQQueue.cpp \
+    src/scheduling/LearningEngine.cpp \
+    src/scheduling/PriorityInheritance.cpp \
     tests/simple_test.cpp \
     -o simple_test
 

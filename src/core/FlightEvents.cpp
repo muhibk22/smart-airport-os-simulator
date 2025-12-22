@@ -33,7 +33,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     Runway* runway = nullptr;
     int attempts = 0;
-    const int MAX_ATTEMPTS = 10;
+    const int MAX_ATTEMPTS = 30;
     
     while (runway == nullptr && attempts < MAX_ATTEMPTS) {
         runway = engine->get_runway_manager()->allocate_runway(
