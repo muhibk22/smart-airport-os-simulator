@@ -90,8 +90,8 @@ void QuantumManager::set_active_operations(int count) {
     pthread_mutex_unlock(&quantum_mutex);
 }
 
-void QuantumManager::set_max_operations(int max) {
+void QuantumManager::set_max_operations(int max_val) {
     pthread_mutex_lock(&quantum_mutex);
-    max_operations = max(1, max);
+    max_operations = max(1, max_val);
     pthread_mutex_unlock(&quantum_mutex);
 }

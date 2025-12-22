@@ -28,7 +28,7 @@ double PreemptionManager::calculate_urgency(Operation* op) {
     urgency += op->wait_time / 10.0;
     
     // Emergency operations have maximum urgency
-    if (op->type == OP_EMERGENCY || (op->flight && op->flight->is_emergency)) {
+    if (op->type == OP_EMERGENCY || (op->flight && op->flight->is_emergency())) {
         urgency = 1000.0;
     }
     
@@ -45,7 +45,7 @@ double PreemptionManager::calculate_delay_cost(Operation* op) {
         cost += op->flight->passenger_count / 100.0;
         
         // International flights cost more to delay
-        if (op->flight->type == INTERNATIONAL) {
+        if (op->flight->flight_type == INTERNATIONAL) {
             cost *= 1.5;
         }
     }

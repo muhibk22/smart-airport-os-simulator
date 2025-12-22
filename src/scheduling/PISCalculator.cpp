@@ -51,15 +51,15 @@ double PISCalculator::calculate_delay_propagation(Operation* op) {
     // Estimate affected flights based on flight type and delay
     int affected_flights = 0;
     
-    if (op->flight->type == INTERNATIONAL) {
+    if (op->flight->flight_type == INTERNATIONAL) {
         // International flights affect more connections
         affected_flights = 5 + (op->wait_time / 60); // More delay = more affected
-    } else if (op->flight->type == DOMESTIC) {
+    } else if (op->flight->flight_type == DOMESTIC) {
         affected_flights = 2 + (op->wait_time / 120);
     }
     
     // Emergency flights could affect many
-    if (op->flight->is_emergency) {
+    if (op->flight->is_emergency()) {
         affected_flights = 10;
     }
     
@@ -138,7 +138,7 @@ double PISCalculator::calculate_fuel_criticality(Operation* op) {
     // Fuel_Criticality_Factor = (Reserve_Fuel_Minutes - Emergency_Threshold) / Reserve_Fuel_Minutes
     if (op == nullptr || op->flight == nullptr) return 0.0;
     
-    int reserve_fuel = op->flight->current_fuel;
+    int reserve_fuel = op->flight->reserve_fuel_minutes;
     
     // Convert fuel to approximate minutes (simplified)
     // Assume fuel consumption rate based on aircraft type

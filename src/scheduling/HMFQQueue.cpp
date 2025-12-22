@@ -94,7 +94,7 @@ Operation* HMFQQueue::create_operation(Flight* flight, OperationType type, long 
     
     // Assign initial queue based on flight priority
     if (flight) {
-        if (flight->is_emergency) {
+        if (flight->is_emergency()) {
             op->current_queue = 0;  // Emergency
         } else if (flight->priority <= 20) {
             op->current_queue = 1;  // Critical

@@ -48,7 +48,7 @@ public:
     
     // Update system load
     void set_active_operations(int count);
-    void set_max_operations(int max);
+    void set_max_operations(int max_val);
     
     // Getters
     int get_active_operations() const { return active_operations; }

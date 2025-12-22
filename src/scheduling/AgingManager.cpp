@@ -2,6 +2,7 @@
 #include "../core/Logger.h"
 #include <sstream>
 #include <algorithm>
+#include <climits>
 
 using namespace std;
 
