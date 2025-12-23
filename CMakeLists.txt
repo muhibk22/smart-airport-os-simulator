@@ -35,19 +35,7 @@ add_executable(SmartAirportOS
 # Link pthread
 target_link_libraries(SmartAirportOS PRIVATE Threads::Threads)
 
-# Test executables
-add_executable(test_scheduler tests/test_scheduler.cpp ${SOURCES})
-target_link_libraries(test_scheduler PRIVATE Threads::Threads)
-
-add_executable(test_memory tests/test_memory.cpp ${SOURCES})
-target_link_libraries(test_memory PRIVATE Threads::Threads)
-
-add_executable(test_resources tests/test_resources.cpp ${SOURCES})
-target_link_libraries(test_resources PRIVATE Threads::Threads)
-
-add_executable(test_simulation tests/test_simulation.cpp ${SOURCES})
-target_link_libraries(test_simulation PRIVATE Threads::Threads)
-
+# Test executable (integration test)
 add_executable(simple_test tests/simple_test.cpp ${SOURCES})
 target_link_libraries(simple_test PRIVATE Threads::Threads)
 

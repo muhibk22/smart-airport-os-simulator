@@ -16,9 +16,9 @@ private:
     pthread_mutex_t queue_mutex;
     pthread_cond_t event_available;
     
-    // Comparator for min-heap
+    // Comparator for min-heap (Event::operator< already handles the ordering)
     static bool compare(Event* a, Event* b) {
-        return *b < *a; // Invert for min-heap
+        return *a < *b; // Use Event's operator< directly (already returns time > for min-heap)
     }
     
 public:
