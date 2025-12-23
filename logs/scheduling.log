@@ -1,0 +1,15 @@
+[HMFQ] Created operation 1 for flight BA400 in Q3 (PIS: 0.24)
+[HMFQ] Enqueued operation 1 to Q3
+[HMFQ] Created operation 2 for flight DL300 in Q3 (PIS: 0.225)
+[HMFQ] Enqueued operation 2 to Q3
+[HMFQ] Created operation 3 for flight UA200 in Q3 (PIS: 0.225)
+[HMFQ] Enqueued operation 3 to Q3
+[HMFQ] Created operation 4 for flight AA100 in Q3 (PIS: 0.24)
+[HMFQ] Enqueued operation 4 to Q3
+[HMFQ] Created operation 5 for flight PVT500 in Q4 (PIS: 0.225)
+[HMFQ] Enqueued operation 5 to Q4
+[HMFQ] Completed operation 2 (wait: 0, preemptions: 0)
+[HMFQ] Completed operation 4 (wait: 0, preemptions: 0)
+[HMFQ] Completed operation 3 (wait: 0, preemptions: 0)
+[HMFQ] Completed operation 1 (wait: 0, preemptions: 0)
+[HMFQ] Completed operation 5 (wait: 0, preemptions: 0)

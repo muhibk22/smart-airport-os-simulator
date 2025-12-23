@@ -1,0 +1,90 @@
+[RESOURCE] DL300 requesting GPU
+[RESOURCE] DL300 acquired GPU-0
+[RESOURCE] DL300 requesting fuel truck
+[RESOURCE] DL300 acquired FuelTruck-0 - refueling
+[RESOURCE] BA400 requesting GPU
+[RESOURCE] BA400 acquired GPU-1
+[RESOURCE] BA400 requesting fuel truck
+[RESOURCE] BA400 acquired FuelTruck-1 - refueling
+[RESOURCE] UA200 requesting GPU
+[RESOURCE] UA200 acquired GPU-2
+[RESOURCE] UA200 requesting fuel truck
+[RESOURCE] UA200 acquired FuelTruck-2 - refueling
+[RESOURCE] AA100 requesting GPU
+[RESOURCE] AA100 acquired GPU-3
+[RESOURCE] AA100 requesting fuel truck
+[RESOURCE] AA100 acquired FuelTruck-3 - refueling
+[RESOURCE] DL300 released fuel truck - refueling complete
+[RESOURCE] DL300 requesting catering vehicle
+[RESOURCE] DL300 acquired Catering-0 - catering
+[RESOURCE] UA200 released fuel truck - refueling complete
+[RESOURCE] UA200 requesting catering vehicle
+[RESOURCE] UA200 acquired Catering-1 - catering
+[RESOURCE] BA400 released fuel truck - refueling complete
+[RESOURCE] BA400 requesting catering vehicle
+[RESOURCE] BA400 acquired Catering-2 - catering
+[RESOURCE] AA100 released fuel truck - refueling complete
+[RESOURCE] AA100 requesting catering vehicle
+[RESOURCE] AA100 acquired Catering-3 - catering
+[RESOURCE] DL300 released catering - complete
+[RESOURCE] DL300 requesting cleaning crew
+[RESOURCE] DL300 acquired Cleaning-0 - cleaning
+[RESOURCE] UA200 released catering - complete
+[RESOURCE] UA200 requesting cleaning crew
+[RESOURCE] UA200 acquired Cleaning-1 - cleaning
+[RESOURCE] AA100 released catering - complete
+[RESOURCE] AA100 requesting cleaning crew
+[RESOURCE] AA100 acquired Cleaning-2 - cleaning
+[RESOURCE] BA400 released catering - complete
+[RESOURCE] BA400 requesting cleaning crew
+[RESOURCE] BA400 acquired Cleaning-3 - cleaning
+[RESOURCE] DL300 released cleaning crew - complete
+[RESOURCE] DL300 requesting baggage cart
+[RESOURCE] DL300 acquired Baggage-0 - loading baggage
+[RESOURCE] UA200 released cleaning crew - complete
+[RESOURCE] UA200 requesting baggage cart
+[RESOURCE] UA200 acquired Baggage-1 - loading baggage
+[RESOURCE] BA400 released cleaning crew - complete
+[RESOURCE] BA400 requesting baggage cart
+[RESOURCE] BA400 acquired Baggage-2 - loading baggage
+[RESOURCE] AA100 released cleaning crew - complete
+[RESOURCE] AA100 requesting baggage cart
+[RESOURCE] AA100 acquired Baggage-3 - loading baggage
+[RESOURCE] DL300 released baggage cart - complete
+[RESOURCE] DL300 requesting aircraft tug for pushback
+[RESOURCE] DL300 released GPU
+[RESOURCE] DL300 using Tug-0 for pushback
+[RESOURCE] BA400 released baggage cart - complete
+[RESOURCE] BA400 requesting aircraft tug for pushback
+[RESOURCE] BA400 released GPU
+[RESOURCE] BA400 using Tug-1 for pushback
+[RESOURCE] UA200 released baggage cart - complete
+[RESOURCE] UA200 requesting aircraft tug for pushback
+[RESOURCE] UA200 released GPU
+[RESOURCE] UA200 using Tug-2 for pushback
+[RESOURCE] AA100 released baggage cart - complete
+[RESOURCE] AA100 requesting aircraft tug for pushback
+[RESOURCE] AA100 released GPU
+[RESOURCE] AA100 using Tug-3 for pushback
+[RESOURCE] DL300 released tug - pushback complete
+[RESOURCE] AA100 released tug - pushback complete
+[RESOURCE] UA200 released tug - pushback complete
+[RESOURCE] BA400 released tug - pushback complete
+[RESOURCE] PVT500 requesting GPU
+[RESOURCE] PVT500 acquired GPU-0
+[RESOURCE] PVT500 requesting fuel truck
+[RESOURCE] PVT500 acquired FuelTruck-0 - refueling
+[RESOURCE] PVT500 released fuel truck - refueling complete
+[RESOURCE] PVT500 requesting catering vehicle
+[RESOURCE] PVT500 acquired Catering-0 - catering
+[RESOURCE] PVT500 released catering - complete
+[RESOURCE] PVT500 requesting cleaning crew
+[RESOURCE] PVT500 acquired Cleaning-0 - cleaning
+[RESOURCE] PVT500 released cleaning crew - complete
+[RESOURCE] PVT500 requesting baggage cart
+[RESOURCE] PVT500 acquired Baggage-0 - loading baggage
+[RESOURCE] PVT500 released baggage cart - complete
+[RESOURCE] PVT500 requesting aircraft tug for pushback
+[RESOURCE] PVT500 released GPU
+[RESOURCE] PVT500 using Tug-0 for pushback
+[RESOURCE] PVT500 released tug - pushback complete

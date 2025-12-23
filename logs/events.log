@@ -1,0 +1,224 @@
+[SimulationEngine] Initializing simulation...
+[SimulationEngine] Configuration loaded - seed: 42
+[SimulationEngine] Created 4 runways
+[SimulationEngine] Created 20 gates
+[SimulationEngine] Created taxiway graph
+[SimulationEngine] Generating initial flights...
+[SimulationEngine] Scheduled flight AA100 arrival at 300 seconds
+[SimulationEngine] Scheduled flight UA200 arrival at 600 seconds
+[SimulationEngine] Scheduled flight DL300 arrival at 900 seconds
+[SimulationEngine] Scheduled flight PVT500 arrival at 1200 seconds
+[SimulationEngine] Scheduled flight BA400 arrival at 1500 seconds
+[SimulationEngine] Initial flights generated
+[SimulationEngine] Initialization complete
+[SimulationEngine] Starting simulation threads...
+[EventDispatcher] Started
+[SimulationEngine] All threads started
+[CrisisMonitor] Crisis monitoring thread started
+[CRISIS] Weather event: Clear severity Minor - capacity now 90%
+[CRISIS] Emergency: Mechanical Issue on flight 7 priority 1
+[CRISIS] Handling emergency 0 type Mechanical Issue - ETA 45 minutes
+[CRISIS] Emergency 0 resolved
+[CRISIS] Weather event: Ice severity Minor - capacity now 90%
+[CRISIS] Emergency: Security Threat on flight 4 priority 1
+[CRISIS] Handling emergency 1 type Security Threat - ETA 60 minutes
+[CRISIS] Emergency 1 resolved
+[CRISIS] Weather event: Thunderstorm severity Minor - capacity now 80%
+[CRISIS] Emergency: Mechanical Issue on flight 4 priority 1
+[CRISIS] Handling emergency 2 type Mechanical Issue - ETA 45 minutes
+[CRISIS] Emergency 2 resolved
+[CRISIS] Weather event: Thunderstorm severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Rain severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Emergency: Medical Emergency on flight 9 priority 2
+[CRISIS] Handling emergency 3 type Medical Emergency - ETA 30 minutes
+[CRISIS] Emergency 3 resolved
+[CRISIS] Weather event: Rain severity Severe - capacity now 40%
+[CRISIS] Weather event: Ice severity Minor - capacity now 30%
+[CRISIS] Weather event: Thunderstorm severity Severe - capacity now 30%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Ice severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Fog severity Moderate - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[EventDispatcher] Processing: FlightArrival:BA400
+[EVENT] Processing FlightArrivalEvent for BA400
+[EVENT] Flight thread created for BA400
+[EventDispatcher] Completed: FlightArrival:BA400
+[EventDispatcher] Processing: FlightArrival:PVT500
+[EVENT] Processing FlightArrivalEvent for PVT500
+[FLIGHT_THREAD] Flight BA400 thread started
+[FLIGHT_THREAD] Flight PVT500 thread started
+[EVENT] Flight thread created for PVT500
+[EventDispatcher] Completed: FlightArrival:PVT500
+[EventDispatcher] Processing: FlightArrival:DL300
+[EVENT] Processing FlightArrivalEvent for DL300
+[FLIGHT] BA400 approaching, requesting runway
+[RunwayManager] Flight BA400 allocated runway 27L
+[FLIGHT] BA400 landing on runway 27L
+[EVENT] Flight thread created for DL300
+[EventDispatcher] Completed: FlightArrival:DL300
+[EventDispatcher] Processing: FlightArrival:UA200
+[EVENT] Processing FlightArrivalEvent for UA200
+[EVENT] Flight thread created for UA200
+[EventDispatcher] Completed: FlightArrival:UA200
+[EventDispatcher] Processing: FlightArrival:AA100
+[EVENT] Processing FlightArrivalEvent for AA100
+[FLIGHT_THREAD] Flight DL300 thread started
+[EVENT] Flight thread created for AA100
+[EventDispatcher] Completed: FlightArrival:AA100
+[FLIGHT_THREAD] Flight UA200 thread started
+[FLIGHT_THREAD] Flight AA100 thread started
+[FLIGHT] DL300 approaching, requesting runway
+[RunwayManager] Flight DL300 allocated runway 27R
+[FLIGHT] DL300 landing on runway 27R
+[FLIGHT] UA200 approaching, requesting runway
+[RunwayManager] Flight UA200 allocated runway 09L
+[FLIGHT] UA200 landing on runway 09L
+[FLIGHT] AA100 approaching, requesting runway
+[RunwayManager] Flight AA100 allocated runway 09R
+[FLIGHT] AA100 landing on runway 09R
+[FLIGHT] PVT500 approaching, requesting runway
+[FLIGHT] PVT500 waiting for runway (attempt 1)
+[FLIGHT] PVT500 waiting for runway (attempt 2)
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[FLIGHT] PVT500 waiting for runway (attempt 3)
+[FLIGHT] PVT500 waiting for runway (attempt 4)
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[FLIGHT] PVT500 waiting for runway (attempt 5)
+[RunwayManager] Runway 27L released
+[RunwayManager] Runway 09R released
+[FLIGHT] AA100 cleared runway 09R
+[FLIGHT] BA400 cleared runway 27L
+[RunwayManager] Runway 27R released
+[FLIGHT] DL300 cleared runway 27R
+[RunwayManager] Runway 09L released
+[FLIGHT] UA200 cleared runway 09L
+[FLIGHT] PVT500 waiting for runway (attempt 6)
+[FLIGHT] PVT500 waiting for runway (attempt 7)
+[FLIGHT] PVT500 waiting for runway (attempt 8)
+[GateManager] Flight DL300 allocated gate 2
+[FLIGHT] DL300 at gate 2
+[GateManager] Flight BA400 allocated gate 0
+[FLIGHT] BA400 at gate 0
+[GateManager] Flight UA200 allocated gate 3
+[FLIGHT] UA200 at gate 3
+[GateManager] Flight AA100 allocated gate 1
+[FLIGHT] AA100 at gate 1
+[FLIGHT] PVT500 waiting for runway (attempt 9)
+[FLIGHT] PVT500 waiting for runway (attempt 10)
+[CRISIS] Weather event: Ice severity Moderate - capacity now 40%
+[FLIGHT] PVT500 waiting for runway (attempt 11)
+[FLIGHT] PVT500 waiting for runway (attempt 12)
+[FLIGHT] PVT500 waiting for runway (attempt 13)
+[FLIGHT] PVT500 waiting for runway (attempt 14)
+[FLIGHT] DL300 servicing complete
+[GateManager] Gate 2 released
+[FLIGHT] BA400 servicing complete
+[GateManager] Gate 0 released
+[FLIGHT] UA200 servicing complete
+[GateManager] Gate 3 released
+[FLIGHT] AA100 servicing complete
+[GateManager] Gate 1 released
+[FLIGHT] PVT500 waiting for runway (attempt 15)
+[FLIGHT] DL300 departed. Turnaround: 99 time units
+[FLIGHT] AA100 departed. Turnaround: 99 time units
+[FLIGHT] UA200 departed. Turnaround: 99 time units
+[FLIGHT] BA400 departed. Turnaround: 99 time units
+[FLIGHT] PVT500 waiting for runway (attempt 16)
+[FLIGHT] PVT500 waiting for runway (attempt 17)
+[FLIGHT] PVT500 waiting for runway (attempt 18)
+[FLIGHT] PVT500 waiting for runway (attempt 19)
+[FLIGHT] PVT500 waiting for runway (attempt 20)
+[FLIGHT] PVT500 waiting for runway (attempt 21)
+[FLIGHT] PVT500 waiting for runway (attempt 22)
+[FLIGHT] PVT500 waiting for runway (attempt 23)
+[FLIGHT] PVT500 waiting for runway (attempt 24)
+[RunwayManager] Flight PVT500 allocated runway 27L
+[FLIGHT] PVT500 landing on runway 27L
+[RunwayManager] Runway 27L released
+[FLIGHT] PVT500 cleared runway 27L
+[GateManager] Flight PVT500 allocated gate 15
+[FLIGHT] PVT500 at gate 15
+[FLIGHT] PVT500 servicing complete
+[GateManager] Gate 15 released
+[FLIGHT] PVT500 departed. Turnaround: 100 time units
+[CRISIS] Emergency: Low Fuel Emergency on flight 0 priority 1
+[CRISIS] Handling emergency 4 type Low Fuel Emergency - ETA 20 minutes
+[CRISIS] Emergency 4 resolved
+[CRISIS] Weather event: Thunderstorm severity Moderate - capacity now 70%
+[CRISIS] Weather event: Clear severity Moderate - capacity now 70%
+[CRISIS] Emergency: Fire on flight 0 priority 0
+[CRISIS] Handling emergency 5 type Fire - ETA 120 minutes
+[CRISIS] Emergency 5 resolved
+[CRISIS] Weather event: Ice severity Minor - capacity now 90%
+[CRISIS] Weather event: Rain severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Emergency: Medical Emergency on flight 4 priority 2
+[CRISIS] Handling emergency 6 type Medical Emergency - ETA 30 minutes
+[CRISIS] Emergency 6 resolved
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Rain severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Emergency: Medical Emergency on flight 8 priority 2
+[CRISIS] Handling emergency 7 type Medical Emergency - ETA 30 minutes
+[CRISIS] Emergency 7 resolved
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Rain severity Minor - capacity now 90%
+[CRISIS] Weather event: Thunderstorm severity Minor - capacity now 80%
+[CRISIS] Emergency: Bird Strike on flight 5 priority 2
+[CRISIS] Handling emergency 8 type Bird Strike - ETA 90 minutes
+[CRISIS] Emergency 8 resolved
+[CRISIS] Emergency: Evacuation on flight 4 priority 0
+[CRISIS] Handling emergency 9 type Evacuation - ETA 180 minutes
+[CRISIS] Emergency 9 resolved
+[CRISIS] Weather event: Ice severity Extreme - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Emergency: Mechanical Issue on flight 5 priority 1
+[CRISIS] Handling emergency 10 type Mechanical Issue - ETA 45 minutes
+[CRISIS] Emergency 10 resolved
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] Weather event: Clear severity Severe - capacity now 0%
+[CRISIS] GROUND STOP IN EFFECT - All departures halted
+[CRISIS] GROUND STOP IN EFFECT - All departures halted

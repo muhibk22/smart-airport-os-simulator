@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -138,12 +139,38 @@ void SimulationEngine::initialize_airport() {
 }
 
 void SimulationEngine::generate_initial_flights() {
-    // In full implementation, would generate realistic flight schedule
-    // For now, create a few test flights
+    logger->log_event("[SimulationEngine] Generating initial flights...");
     
-    logger->log_event("[SimulationEngine] Flight generation placeholder");
+    // Create some initial aircraft
+    vector<Aircraft*> aircraft = {
+        new Aircraft(B777),      // Heavy international
+        new Aircraft(A320),      // Medium domestic
+        new Aircraft(B737),      // Medium domestic
+        new Aircraft(G650),      // Private jet
+        new Aircraft(A380)       // Heavy international
+    };
     
-    // Flights will be created by scheduler/main loop in full implementation
+    // Create initial flights
+    vector<Flight*> flights = {
+        new Flight("AA100", aircraft[0], INTERNATIONAL, 300, 1800),  // Arrive at 5 min, depart at 30 min
+        new Flight("UA200", aircraft[1], DOMESTIC, 600, 2400),       // Arrive at 10 min, depart at 40 min
+        new Flight("DL300", aircraft[2], DOMESTIC, 900, 3000),       // Arrive at 15 min, depart at 50 min
+        new Flight("PVT500", aircraft[3], DOMESTIC, 1200, 3600),     // Arrive at 20 min, depart at 60 min
+        new Flight("BA400", aircraft[4], INTERNATIONAL, 1500, 4200)  // Arrive at 25 min, depart at 70 min
+    };
+    
+    // Schedule arrival events
+    for (Flight* flight : flights) {
+        FlightArrivalEvent* arrival_event = new FlightArrivalEvent(flight, this, flight->scheduled_arrival_time);
+        event_queue->push(arrival_event);
+        
+        ostringstream log_msg;
+        log_msg << "[SimulationEngine] Scheduled flight " << flight->flight_id 
+                << " arrival at " << flight->scheduled_arrival_time << " seconds";
+        logger->log_event(log_msg.str());
+    }
+    
+    logger->log_event("[SimulationEngine] Initial flights generated");
 }
 
 void* SimulationEngine::event_dispatcher_func(void* arg) {

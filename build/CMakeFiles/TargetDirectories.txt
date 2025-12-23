@@ -1,0 +1,8 @@
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/SmartAirportOS.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/test_scheduler.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/test_memory.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/test_resources.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/test_simulation.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/simple_test.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/edit_cache.dir
+/home/speedeity/Desktop/project/smart-airport-os-simulator/build/CMakeFiles/rebuild_cache.dir

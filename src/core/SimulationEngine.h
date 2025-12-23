@@ -18,6 +18,9 @@
 #include "../crisis/CrisisManager.h"
 #include "../memory/Prefetcher.h"
 #include "../crew/CrewManager.h"
+#include "../airport/Aircraft.h"
+#include "../airport/Flight.h"
+#include "FlightEvents.h"
 #include "../finance/CostModel.h"
 #include "../finance/RevenueModel.h"
 #include <pthread.h>
@@ -36,8 +39,6 @@ class ResourceManager;
 class CrisisManager;
 class Prefetcher;
 class CrewManager;
-class CostModel;
-class RevenueModel;
 
 class SimulationEngine {
 private:
