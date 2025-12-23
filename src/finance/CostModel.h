@@ -15,7 +15,7 @@ private:
     static constexpr double GATE_COST_PER_HOUR = 150.0;
     static constexpr double RUNWAY_COST_PER_OP = 50.0;
     static constexpr double GROUND_SERVICE_COST = 500.0;
-    static constexpr double DELAY_COST_PER_MINUTE = 100.0;
+    static constexpr double DELAY_COST_PER_MINUTE = 1.0;  // Reduced from $100 for realistic balance
     static constexpr double EMERGENCY_COST_BASE = 5000.0;
     
     double total_fuel_cost;

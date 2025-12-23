@@ -87,9 +87,9 @@ int main() {
         return nullptr;
     }, engine);
     
-    // Let simulation run for 30 seconds
-    std::cout << "Running simulation for 30 seconds...\n\n";
-    sleep(30);
+    // Let simulation run for 60 seconds
+    std::cout << "Running simulation for 60 seconds...\n\n";
+    sleep(60);
     
     // Stop simulation
     std::cout << "\nStopping simulation...\n";
