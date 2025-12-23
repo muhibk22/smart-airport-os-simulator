@@ -1,6 +1,11 @@
 #include "GroundService.h"
+#include <chrono>
 
 using namespace std;
+
+// Static random number generator for equipment failure simulation
+mt19937 GroundService::rng;
+bool GroundService::rng_initialized = false;
 
 GroundService::GroundService(int id, ServiceType t, int flight, int gate) {
     service_id = id;
@@ -12,6 +17,17 @@ GroundService::GroundService(int id, ServiceType t, int flight, int gate) {
     estimated_duration = get_default_duration(t);
     start_time = 0;
     end_time = 0;
+    
+    // Initialize equipment failure tracking
+    equipment_failed = false;
+    failure_recovery_time = 0;
+    retry_count = 0;
+    
+    // Initialize RNG if not already done
+    if (!rng_initialized) {
+        rng.seed(chrono::steady_clock::now().time_since_epoch().count());
+        rng_initialized = true;
+    }
     
     pthread_mutex_init(&service_mutex, nullptr);
     pthread_cond_init(&service_complete, nullptr);
@@ -25,13 +41,28 @@ GroundService::~GroundService() {
 bool GroundService::start(long long current_time) {
     pthread_mutex_lock(&service_mutex);
     
-    if (status != SVC_PENDING) {
+    if (status != SVC_PENDING && status != SVC_EQUIPMENT_FAILURE) {
         pthread_mutex_unlock(&service_mutex);
         return false;
     }
     
+    // Check for equipment failure (5% probability as per spec)
+    if (check_equipment_failure()) {
+        status = SVC_EQUIPMENT_FAILURE;
+        equipment_failed = true;
+        retry_count++;
+        
+        // Recovery time varies by service type (5-15 minutes)
+        uniform_int_distribution<int> recovery_dist(5, 15);
+        failure_recovery_time = recovery_dist(rng);
+        
+        pthread_mutex_unlock(&service_mutex);
+        return false;  // Service cannot start due to equipment failure
+    }
+    
     status = SVC_IN_PROGRESS;
     start_time = current_time;
+    equipment_failed = false;
     
     pthread_mutex_unlock(&service_mutex);
     return true;
@@ -131,4 +162,41 @@ int GroundService::get_default_duration(ServiceType type) {
         case SVC_PUSHBACK: return 5;
         default: return 10;
     }
+}
+
+// ============================================================================
+// EQUIPMENT FAILURE SIMULATION
+// Implements 5% random equipment failure probability as per spec
+// ============================================================================
+
+bool GroundService::check_equipment_failure() {
+    // Generate random number between 0 and 1
+    uniform_real_distribution<double> dist(0.0, 1.0);
+    double roll = dist(rng);
+    
+    // 5% chance of equipment failure
+    return roll < EQUIPMENT_FAILURE_PROBABILITY;
+}
+
+bool GroundService::attempt_recovery() {
+    pthread_mutex_lock(&service_mutex);
+    
+    if (status != SVC_EQUIPMENT_FAILURE) {
+        pthread_mutex_unlock(&service_mutex);
+        return true;  // Not in failure state
+    }
+    
+    if (retry_count >= MAX_RETRIES) {
+        // Max retries exceeded, permanent failure
+        status = SVC_FAILED;
+        pthread_mutex_unlock(&service_mutex);
+        return false;
+    }
+    
+    // Reset to pending for retry
+    status = SVC_PENDING;
+    equipment_failed = false;
+    
+    pthread_mutex_unlock(&service_mutex);
+    return true;
 }

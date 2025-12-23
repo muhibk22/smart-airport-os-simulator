@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <pthread.h>
+#include <random>
 
 using namespace std;
 
@@ -31,7 +32,8 @@ enum ServiceStatus {
     SVC_IN_PROGRESS,
     SVC_COMPLETED,
     SVC_BLOCKED,
-    SVC_FAILED
+    SVC_FAILED,
+    SVC_EQUIPMENT_FAILURE  // New status for equipment failures
 };
 
 class GroundService {
@@ -49,6 +51,17 @@ private:
     long long start_time;
     long long end_time;
     
+    // Equipment failure simulation (5% probability as per spec)
+    static constexpr double EQUIPMENT_FAILURE_PROBABILITY = 0.05;  // 5%
+    bool equipment_failed;
+    int failure_recovery_time;  // Minutes to recover from failure
+    int retry_count;
+    static constexpr int MAX_RETRIES = 3;
+    
+    // Random number generator for failure simulation
+    static mt19937 rng;
+    static bool rng_initialized;
+    
     pthread_mutex_t service_mutex;
     pthread_cond_t service_complete;
     
@@ -61,6 +74,13 @@ public:
     void complete(long long current_time);
     void block();
     void fail(const string& reason);
+    
+    // Equipment failure simulation
+    bool check_equipment_failure();  // Returns true if equipment failed
+    bool attempt_recovery();         // Try to recover from failure
+    int get_recovery_time() const { return failure_recovery_time; }
+    bool has_equipment_failed() const { return equipment_failed; }
+    int get_retry_count() const { return retry_count; }
     
     // Dependencies
     void add_dependency(ServiceType dep);

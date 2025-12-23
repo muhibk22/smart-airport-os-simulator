@@ -1,7 +1,12 @@
 #include "Crew.h"
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
+
+// Static random generator for skill level assignment
+mt19937 Crew::rng;
+bool Crew::rng_initialized = false;
 
 Crew::Crew(int id, const string& n, CrewRole r) {
     crew_id = id;
@@ -13,6 +18,34 @@ Crew::Crew(int id, const string& n, CrewRole r) {
     duty_start_time = 0;
     total_duty_hours = 0;
     last_rest_time = 0;
+    
+    // Initialize RNG if not already done
+    if (!rng_initialized) {
+        rng.seed(chrono::steady_clock::now().time_since_epoch().count());
+        rng_initialized = true;
+    }
+    
+    // Randomly assign skill level (weighted distribution)
+    // 30% Novice, 40% Standard, 20% Experienced, 10% Expert
+    uniform_int_distribution<int> dist(1, 100);
+    int roll = dist(rng);
+    
+    if (roll <= 30) {
+        skill_level = SKILL_NOVICE;
+        skill_multiplier = 0.80;  // -20% efficiency
+    } else if (roll <= 70) {
+        skill_level = SKILL_STANDARD;
+        skill_multiplier = 1.00;  // Normal efficiency
+    } else if (roll <= 90) {
+        skill_level = SKILL_EXPERIENCED;
+        skill_multiplier = 1.10;  // +10% efficiency
+    } else {
+        skill_level = SKILL_EXPERT;
+        skill_multiplier = 1.20;  // +20% efficiency
+    }
+    
+    experience_points = 0;
+    
     pthread_mutex_init(&crew_mutex, nullptr);
 }
 
@@ -86,6 +119,73 @@ string Crew::role_to_string(CrewRole role) {
         case CREW_BAGGAGE_HANDLER: return "Baggage Handler";
         case CREW_GATE_AGENT: return "Gate Agent";
         case CREW_FUEL_TECHNICIAN: return "Fuel Technician";
+        default: return "Unknown";
+    }
+}
+
+// ============================================================================
+// SKILL LEVEL MANAGEMENT
+// Implements ±20% efficiency variation as per spec
+// ============================================================================
+
+void Crew::add_experience(int points) {
+    pthread_mutex_lock(&crew_mutex);
+    
+    experience_points += points;
+    
+    // Auto-upgrade skill level based on experience thresholds
+    if (experience_points >= 1000 && skill_level < SKILL_EXPERT) {
+        skill_level = SKILL_EXPERT;
+        skill_multiplier = 1.20;
+    } else if (experience_points >= 500 && skill_level < SKILL_EXPERIENCED) {
+        skill_level = SKILL_EXPERIENCED;
+        skill_multiplier = 1.10;
+    } else if (experience_points >= 100 && skill_level < SKILL_STANDARD) {
+        skill_level = SKILL_STANDARD;
+        skill_multiplier = 1.00;
+    }
+    
+    pthread_mutex_unlock(&crew_mutex);
+}
+
+void Crew::set_skill_level(SkillLevel level) {
+    pthread_mutex_lock(&crew_mutex);
+    
+    skill_level = level;
+    
+    switch (level) {
+        case SKILL_NOVICE:
+            skill_multiplier = 0.80;
+            break;
+        case SKILL_STANDARD:
+            skill_multiplier = 1.00;
+            break;
+        case SKILL_EXPERIENCED:
+            skill_multiplier = 1.10;
+            break;
+        case SKILL_EXPERT:
+            skill_multiplier = 1.20;
+            break;
+    }
+    
+    pthread_mutex_unlock(&crew_mutex);
+}
+
+double Crew::calculate_service_duration(int base_duration) const {
+    // Higher efficiency = shorter duration
+    // Novice (0.80x efficiency) = takes 25% longer (1/0.80 = 1.25)
+    // Expert (1.20x efficiency) = takes 17% less time (1/1.20 = 0.83)
+    
+    double adjusted_duration = base_duration / skill_multiplier;
+    return adjusted_duration;
+}
+
+const char* Crew::skill_level_to_string(SkillLevel level) {
+    switch (level) {
+        case SKILL_NOVICE: return "Novice (80%)";
+        case SKILL_STANDARD: return "Standard (100%)";
+        case SKILL_EXPERIENCED: return "Experienced (110%)";
+        case SKILL_EXPERT: return "Expert (120%)";
         default: return "Unknown";
     }
 }

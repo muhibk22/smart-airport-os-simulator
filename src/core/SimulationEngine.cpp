@@ -190,6 +190,10 @@ void* SimulationEngine::event_dispatcher_func(void* arg) {
 void* SimulationEngine::dashboard_updater_func(void* arg) {
     SimulationEngine* engine = static_cast<SimulationEngine*>(arg);
     
+    // Track last logged times to prevent duplicates
+    long long last_memory_log_time = -1;
+    long long last_perf_log_time = -1;
+    
     while (engine->simulation_running) {
         // Collect metrics from atomic counters
         DashboardMetrics metrics = {};
@@ -217,20 +221,24 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         metrics.page_fault_rate = total_accesses > 0 ? 
             ((double)engine->tlb->get_misses() / total_accesses) : 0.0;
         
-        // Log memory stats periodically
-        if (metrics.current_sim_time % 10 == 0) {  // Every 10 time units
+        // Log memory stats every 10 seconds (only once per interval)
+        long long memory_interval = metrics.current_sim_time / 10;
+        if (memory_interval > last_memory_log_time) {
+            last_memory_log_time = memory_interval;
             ostringstream mem_msg;
             mem_msg << "[MEMORY] TLB Hit Rate: " << (engine->tlb->get_hit_rate() * 100.0) << "%"
                     << " | Thrashing: " << (engine->thrashing_detector->is_in_thrashing_state() ? "YES" : "NO");
             engine->logger->log_memory(mem_msg.str());
         }
         
-        // Log performance stats
-        if (metrics.current_sim_time % 30 == 0 && metrics.total_flights_handled > 0) {
+        // Log performance stats every 30 seconds (only once per interval)
+        long long perf_interval = metrics.current_sim_time / 30;
+        if (perf_interval > last_perf_log_time && metrics.total_flights_handled > 0) {
+            last_perf_log_time = perf_interval;
             ostringstream perf_msg;
             perf_msg << "[PERF] Flights: " << metrics.total_flights_handled 
-                     << " | Avg Turnaround: " << metrics.average_turnaround_time << " min"
-                     << " | On-Time: " << metrics.on_time_performance << "%";
+                     << " | Avg Turnaround: " << fixed << setprecision(2) << metrics.average_turnaround_time << " min"
+                     << " | On-Time: " << fixed << setprecision(1) << (metrics.on_time_performance * 100) << "%";
             engine->logger->log_performance(perf_msg.str());
         }
         

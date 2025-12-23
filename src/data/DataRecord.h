@@ -28,8 +28,15 @@ struct DataRecord {
     double value3;
     string metadata;
     
+    // Version control fields for MVCC
+    int version;                // Current version number (starts at 1)
+    int previous_version_id;    // Link to previous version (-1 if first)
+    bool is_current;            // True if this is the latest version
+    long long created_at;       // When this version was created
+    
     DataRecord() : record_id(0), type(REC_FLIGHT), timestamp(0), 
-                   value1(0), value2(0), value3(0) {}
+                   value1(0), value2(0), value3(0), version(1), 
+                   previous_version_id(-1), is_current(true), created_at(0) {}
     
     DataRecord(int id, RecordType t, long long ts, const string& cat, 
                const string& desc, double v1 = 0, double v2 = 0, double v3 = 0)
