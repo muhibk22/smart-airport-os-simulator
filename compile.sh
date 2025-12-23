@@ -4,8 +4,9 @@ echo "Compiling with g++ directly..."
 
 # Create logs directory if needed
 mkdir -p logs
+mkdir -p data/output
 
-# Compile simple_test with scheduler
+# Compile simple_test with all modules
 g++ -std=c++17 -pthread -I src \
     src/core/TimeManager.cpp \
     src/core/Event.cpp \
@@ -38,6 +39,25 @@ g++ -std=c++17 -pthread -I src \
     src/memory/ThrashingDetector.cpp \
     src/memory/Prefetcher.cpp \
     src/memory/CompressionManager.cpp \
+    src/resources/Resource.cpp \
+    src/resources/ResourceManager.cpp \
+    src/resources/DeadlockDetector.cpp \
+    src/crisis/WeatherEvent.cpp \
+    src/crisis/EmergencyEvent.cpp \
+    src/crisis/CrisisManager.cpp \
+    src/crew/Crew.cpp \
+    src/crew/CrewManager.cpp \
+    src/crew/FatigueModel.cpp \
+    src/finance/CostModel.cpp \
+    src/finance/RevenueModel.cpp \
+    src/data/DataStore.cpp \
+    src/services/GroundService.cpp \
+    src/services/ServiceDependencyGraph.cpp \
+    src/services/ServiceExecutor.cpp \
+    src/passengers/Baggage.cpp \
+    src/passengers/PassengerGroup.cpp \
+    src/passengers/PassengerPipeline.cpp \
+    src/passengers/BaggageSystem.cpp \
     tests/simple_test.cpp \
     -o simple_test
 
