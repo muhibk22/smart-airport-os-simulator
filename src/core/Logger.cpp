@@ -13,6 +13,13 @@ Logger::Logger() {
         pthread_mutex_init(&log_mutexes[i], nullptr);
     }
     
+    // Create logs directory if it doesn't exist
+    #ifdef _WIN32
+    system("if not exist logs mkdir logs");
+    #else
+    system("mkdir -p logs");
+    #endif
+    
     // Open log files
     log_files[SCHEDULING_LOG].open("logs/scheduling.log", ios::out | ios::trunc);
     log_files[MEMORY_LOG].open("logs/memory.log", ios::out | ios::trunc);
