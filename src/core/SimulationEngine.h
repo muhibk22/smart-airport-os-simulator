@@ -14,6 +14,7 @@
 #include "../memory/WorkingSetManager.h"
 #include "../memory/ClockReplacer.h"
 #include "../memory/ThrashingDetector.h"
+#include "../resources/ResourceManager.h"
 #include <pthread.h>
 #include <atomic>
 
@@ -26,6 +27,7 @@ class TLB;
 class WorkingSetManager;
 class ClockReplacer;
 class ThrashingDetector;
+class ResourceManager;
 
 class SimulationEngine {
 private:
@@ -44,6 +46,9 @@ private:
     WorkingSetManager* working_set_manager;
     ClockReplacer* clock_replacer;
     ThrashingDetector* thrashing_detector;
+    
+    // Resource Manager (Banker's Algorithm)
+    ResourceManager* resource_manager;
     
     // Performance tracking
     atomic<long long> total_turnaround_time;
@@ -92,6 +97,7 @@ public:
     HMFQQueue* get_scheduler() { return scheduler; }
     TLB* get_tlb() { return tlb; }
     ThrashingDetector* get_thrashing_detector() { return thrashing_detector; }
+    ResourceManager* get_resource_manager() { return resource_manager; }
     
     // Flight tracking updates
     void increment_active_flights() { active_flight_count++; }

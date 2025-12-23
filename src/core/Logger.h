@@ -11,15 +11,16 @@ enum LogChannel {
     SCHEDULING_LOG,
     MEMORY_LOG,
     EVENTS_LOG,
-    PERFORMANCE_LOG
+    PERFORMANCE_LOG,
+    RESOURCES_LOG
 };
 
 class Logger {
 private:
     static Logger* instance;
     
-    ofstream log_files[4];
-    pthread_mutex_t log_mutexes[4];
+    ofstream log_files[5];
+    pthread_mutex_t log_mutexes[5];
     
     Logger();
     
@@ -33,6 +34,7 @@ public:
     void log_memory(const string& message);
     void log_event(const string& message);
     void log_performance(const string& message);
+    void log_resource(const string& message);
     
     void flush_all();
 };

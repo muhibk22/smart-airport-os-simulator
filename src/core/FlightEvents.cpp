@@ -4,6 +4,8 @@
 #include "../airport/GateManager.h"
 #include "../scheduling/HMFQQueue.h"
 #include "../memory/TLB.h"
+#include "../resources/ResourceManager.h"
+#include "../resources/Resource.h"
 #include <sstream>
 #include <unistd.h>
 #include <cstdlib>
@@ -136,7 +138,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     flight->assigned_gate_id = gate->get_id();
     
-    // ===== PHASE 6: AT GATE & SERVICING =====
+    // ===== PHASE 6: AT GATE & SERVICING WITH RESOURCE ALLOCATION =====
     flight->status = AT_GATE;
     engine->increment_flights_at_gates();  // Track at gate
     log_msg.str("");
@@ -144,16 +146,135 @@ void* flight_lifecycle_handler(void* arg) {
     logger->log_event(log_msg.str());
     
     flight->status = SERVICING;
-    int service_time = flight->aircraft->service_time_minutes;
-    sleep(service_time / 30); // Scale down for testing (30 mins -> 1 sec)
+    ResourceManager* res_mgr = engine->get_resource_manager();
+    long long current_time = engine->get_time_manager()->get_current_time();
+    
+    // ===== GROUND SERVICE: GPU (Ground Power Unit) =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting GPU";
+    logger->log_resource(log_msg.str());
+    
+    Resource* gpu = res_mgr->allocate_resource(RES_GROUND_POWER_UNIT, gate->get_id(), current_time, 30);
+    if (gpu) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << gpu->get_name();
+        logger->log_resource(log_msg.str());
+    }
+    
+    // ===== GROUND SERVICE: FUEL TRUCK =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting fuel truck";
+    logger->log_resource(log_msg.str());
+    
+    Resource* fuel_truck = nullptr;
+    attempts = 0;
+    while (fuel_truck == nullptr && attempts < 10) {
+        fuel_truck = res_mgr->allocate_resource(RES_FUEL_TRUCK, gate->get_id(), current_time, 15);
+        if (fuel_truck == nullptr) {
+            usleep(500000); // Wait 500ms before retry
+            attempts++;
+        }
+    }
+    
+    if (fuel_truck) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << fuel_truck->get_name() << " - refueling";
+        logger->log_resource(log_msg.str());
+        sleep(2); // Simulate refueling time
+        res_mgr->release_resource(fuel_truck);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released fuel truck - refueling complete";
+        logger->log_resource(log_msg.str());
+    }
+    
+    // ===== GROUND SERVICE: CATERING =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting catering vehicle";
+    logger->log_resource(log_msg.str());
+    
+    Resource* catering = res_mgr->allocate_resource(RES_CATERING_VEHICLE, gate->get_id(), current_time, 10);
+    if (catering) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << catering->get_name() << " - catering";
+        logger->log_resource(log_msg.str());
+        sleep(1); // Simulate catering time
+        res_mgr->release_resource(catering);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released catering - complete";
+        logger->log_resource(log_msg.str());
+    }
+    
+    // ===== GROUND SERVICE: CLEANING CREW =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting cleaning crew";
+    logger->log_resource(log_msg.str());
+    
+    Resource* cleaning = res_mgr->allocate_resource(RES_CLEANING_CREW, gate->get_id(), current_time, 20);
+    if (cleaning) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << cleaning->get_name() << " - cleaning";
+        logger->log_resource(log_msg.str());
+        sleep(2); // Simulate cleaning time
+        res_mgr->release_resource(cleaning);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released cleaning crew - complete";
+        logger->log_resource(log_msg.str());
+    }
+    
+    // ===== GROUND SERVICE: BAGGAGE HANDLING =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting baggage cart";
+    logger->log_resource(log_msg.str());
+    
+    Resource* baggage = res_mgr->allocate_resource(RES_BAGGAGE_CART, gate->get_id(), current_time, 15);
+    if (baggage) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << baggage->get_name() << " - loading baggage";
+        logger->log_resource(log_msg.str());
+        sleep(1); // Simulate baggage loading
+        res_mgr->release_resource(baggage);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released baggage cart - complete";
+        logger->log_resource(log_msg.str());
+    }
+    
+    // ===== GROUND SERVICE: TUG FOR PUSHBACK =====
+    log_msg.str("");
+    log_msg << "[RESOURCE] " << flight->flight_id << " requesting aircraft tug for pushback";
+    logger->log_resource(log_msg.str());
+    
+    Resource* tug = res_mgr->allocate_resource(RES_AIRCRAFT_TUG, gate->get_id(), current_time, 5);
+    
+    // Release GPU before departure
+    if (gpu) {
+        res_mgr->release_resource(gpu);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released GPU";
+        logger->log_resource(log_msg.str());
+    }
     
     log_msg.str("");
     log_msg << "[FLIGHT] " << flight->flight_id << " servicing complete";
     logger->log_event(log_msg.str());
     
-    // ===== PHASE 7: RELEASE GATE & DEPARTURE =====
+    // ===== PHASE 7: RELEASE TUG, GATE & DEPARTURE =====
+    if (tug) {
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " using " << tug->get_name() << " for pushback";
+        logger->log_resource(log_msg.str());
+    }
+    
     engine->get_gate_manager()->release_gate(gate->get_id());
     engine->decrement_flights_at_gates();  // No longer at gate
+    
+    // Release tug after pushback
+    if (tug) {
+        sleep(1); // Pushback time
+        res_mgr->release_resource(tug);
+        log_msg.str("");
+        log_msg << "[RESOURCE] " << flight->flight_id << " released tug - pushback complete";
+        logger->log_resource(log_msg.str());
+    }
     
     flight->status = DEPARTING;
     engine->increment_flights_departing();  // Track departing

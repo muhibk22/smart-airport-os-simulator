@@ -9,7 +9,7 @@ Logger* Logger::instance = nullptr;
 
 Logger::Logger() {
     // Initialize mutexes for each log channel
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         pthread_mutex_init(&log_mutexes[i], nullptr);
     }
     
@@ -18,8 +18,9 @@ Logger::Logger() {
     log_files[MEMORY_LOG].open("logs/memory.log", ios::out | ios::trunc);
     log_files[EVENTS_LOG].open("logs/events.log", ios::out | ios::trunc);
     log_files[PERFORMANCE_LOG].open("logs/performance.log", ios::out | ios::trunc);
+    log_files[RESOURCES_LOG].open("logs/resources.log", ios::out | ios::trunc);
     
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         if (!log_files[i].is_open()) {
             cerr << "Error: Could not open log file " << i << endl;
         }
@@ -29,7 +30,7 @@ Logger::Logger() {
 Logger::~Logger() {
     flush_all();
     
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         log_files[i].close();
         pthread_mutex_destroy(&log_mutexes[i]);
     }
@@ -69,8 +70,12 @@ void Logger::log_performance(const string& message) {
     log(PERFORMANCE_LOG, message);
 }
 
+void Logger::log_resource(const string& message) {
+    log(RESOURCES_LOG, message);
+}
+
 void Logger::flush_all() {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         pthread_mutex_lock(&log_mutexes[i]);
         log_files[i].flush();
         pthread_mutex_unlock(&log_mutexes[i]);

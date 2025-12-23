@@ -24,6 +24,11 @@ SimulationEngine::SimulationEngine() {
     clock_replacer = new ClockReplacer(256);  // 256 frames
     thrashing_detector = new ThrashingDetector();
     
+    // Initialize resource manager with Banker's algorithm
+    resource_manager = new ResourceManager();
+    // Resource pool sizes: 8 fuel trucks, 6 catering, 10 baggage, 4 cleaning, 5 buses, 6 tugs, 8 GPUs
+    resource_manager->initialize(8, 6, 10, 4, 5, 6, 8);
+    
     simulation_running = false;
     simulation_duration = 86400; // 24 hours default
     
@@ -56,6 +61,7 @@ SimulationEngine::~SimulationEngine() {
     delete working_set_manager;
     delete clock_replacer;
     delete thrashing_detector;
+    delete resource_manager;
 }
 
 void SimulationEngine::load_configuration() {
@@ -185,15 +191,15 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         
         metrics.total_flights_handled = engine->total_flights_handled.load();
         
-        // Performance metrics
+        // Performance metrics (0.0 to 1.0 - dashboard multiplies by 100)
         metrics.average_turnaround_time = engine->get_avg_turnaround() / 60.0;  // Convert to minutes
-        metrics.on_time_performance = engine->get_on_time_rate();
+        metrics.on_time_performance = engine->get_on_time_rate() / 100.0;  // Convert to 0-1 range
         
-        // Memory metrics from TLB and thrashing detector
+        // Memory metrics from TLB and thrashing detector (0.0 to 1.0)
         metrics.page_fault_count = engine->tlb->get_misses();
         double total_accesses = engine->tlb->get_hits() + engine->tlb->get_misses();
         metrics.page_fault_rate = total_accesses > 0 ? 
-            (engine->tlb->get_misses() / total_accesses * 100.0) : 0.0;
+            ((double)engine->tlb->get_misses() / total_accesses) : 0.0;
         
         // Log memory stats periodically
         if (metrics.current_sim_time % 10 == 0) {  // Every 10 time units
