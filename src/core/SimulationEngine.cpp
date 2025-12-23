@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -17,6 +18,12 @@ SimulationEngine::SimulationEngine() {
     taxiway_graph = new TaxiwayGraph();
     scheduler = new HMFQQueue();  // HMFQ-PPRA Scheduler
     
+    // Initialize memory manager components
+    tlb = new TLB(64);  // 64-entry TLB
+    working_set_manager = new WorkingSetManager();
+    clock_replacer = new ClockReplacer(256);  // 256 frames
+    thrashing_detector = new ThrashingDetector();
+    
     simulation_running = false;
     simulation_duration = 86400; // 24 hours default
     
@@ -26,6 +33,11 @@ SimulationEngine::SimulationEngine() {
     flights_at_gates = 0;
     flights_departing = 0;
     total_flights_handled = 0;
+    
+    // Initialize performance counters
+    total_turnaround_time = 0;
+    on_time_flights = 0;
+    delayed_flights = 0;
 }
 
 SimulationEngine::~SimulationEngine() {
@@ -40,6 +52,10 @@ SimulationEngine::~SimulationEngine() {
     delete gate_manager;
     delete taxiway_graph;
     delete scheduler;
+    delete tlb;
+    delete working_set_manager;
+    delete clock_replacer;
+    delete thrashing_detector;
 }
 
 void SimulationEngine::load_configuration() {
@@ -168,10 +184,33 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0;
         
         metrics.total_flights_handled = engine->total_flights_handled.load();
-        metrics.average_turnaround_time = 0.0;
-        metrics.on_time_performance = 0.0;
-        metrics.page_fault_count = 0;
-        metrics.page_fault_rate = 0.0;
+        
+        // Performance metrics
+        metrics.average_turnaround_time = engine->get_avg_turnaround() / 60.0;  // Convert to minutes
+        metrics.on_time_performance = engine->get_on_time_rate();
+        
+        // Memory metrics from TLB and thrashing detector
+        metrics.page_fault_count = engine->tlb->get_misses();
+        double total_accesses = engine->tlb->get_hits() + engine->tlb->get_misses();
+        metrics.page_fault_rate = total_accesses > 0 ? 
+            (engine->tlb->get_misses() / total_accesses * 100.0) : 0.0;
+        
+        // Log memory stats periodically
+        if (metrics.current_sim_time % 10 == 0) {  // Every 10 time units
+            ostringstream mem_msg;
+            mem_msg << "[MEMORY] TLB Hit Rate: " << (engine->tlb->get_hit_rate() * 100.0) << "%"
+                    << " | Thrashing: " << (engine->thrashing_detector->is_in_thrashing_state() ? "YES" : "NO");
+            engine->logger->log_memory(mem_msg.str());
+        }
+        
+        // Log performance stats
+        if (metrics.current_sim_time % 30 == 0 && metrics.total_flights_handled > 0) {
+            ostringstream perf_msg;
+            perf_msg << "[PERF] Flights: " << metrics.total_flights_handled 
+                     << " | Avg Turnaround: " << metrics.average_turnaround_time << " min"
+                     << " | On-Time: " << metrics.on_time_performance << "%";
+            engine->logger->log_performance(perf_msg.str());
+        }
         
         engine->dashboard->update_metrics(metrics);
         engine->dashboard->display();

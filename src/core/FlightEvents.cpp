@@ -3,6 +3,7 @@
 #include "../airport/RunwayManager.h"
 #include "../airport/GateManager.h"
 #include "../scheduling/HMFQQueue.h"
+#include "../memory/TLB.h"
 #include <sstream>
 #include <unistd.h>
 #include <cstdlib>
@@ -18,6 +19,7 @@ void* flight_lifecycle_handler(void* arg) {
     long long arrival_time = data->arrival_time;
     
     Logger* logger = Logger::get_instance();
+    TLB* tlb = engine->get_tlb();
     
     ostringstream log_msg;
     log_msg << "[FLIGHT_THREAD] Flight " << flight->flight_id << " thread started";
@@ -25,6 +27,16 @@ void* flight_lifecycle_handler(void* arg) {
     
     // Track this flight as active
     engine->increment_active_flights();
+    
+    // Simulate memory access for flight data (passenger manifest, baggage, etc.)
+    int flight_id_hash = abs((int)(flight->flight_id[0] + flight->flight_id[1] * 256));
+    for (int page = 0; page < 5; page++) {  // Each flight accesses ~5 pages
+        int frame = tlb->lookup(flight_id_hash, page);
+        if (frame < 0) {
+            // TLB miss - simulate page load
+            tlb->insert(flight_id_hash, page, page + flight_id_hash % 100);
+        }
+    }
     
     // Create scheduler operation for this flight
     HMFQQueue* scheduler = engine->get_scheduler();
@@ -147,9 +159,21 @@ void* flight_lifecycle_handler(void* arg) {
     engine->increment_flights_departing();  // Track departing
     flight->actual_departure_time = engine->get_time_manager()->get_current_time();
     
+    // Calculate turnaround time and record performance
+    long long turnaround = flight->actual_departure_time - flight->actual_arrival_time;
+    engine->record_turnaround(turnaround);
+    
+    // Check if on-time (assume scheduled departure was 30 time units after arrival)
+    long long scheduled_departure = flight->actual_arrival_time + 30;
+    if (flight->actual_departure_time <= scheduled_departure) {
+        engine->record_on_time();
+    } else {
+        engine->record_delayed();
+    }
+    
     log_msg.str("");
-    log_msg << "[FLIGHT] " << flight->flight_id << " departed. Total time: " 
-            << (flight->actual_departure_time - flight->actual_arrival_time) << " time units";
+    log_msg << "[FLIGHT] " << flight->flight_id << " departed. Turnaround: " 
+            << turnaround << " time units";
     logger->log_event(log_msg.str());
     
     flight->status = DEPARTED;

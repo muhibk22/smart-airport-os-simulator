@@ -9,13 +9,23 @@
 #include "../airport/GateManager.h"
 #include "../airport/TaxiwayGraph.h"
 #include "../scheduling/HMFQQueue.h"
+#include "../memory/PageTable.h"
+#include "../memory/TLB.h"
+#include "../memory/WorkingSetManager.h"
+#include "../memory/ClockReplacer.h"
+#include "../memory/ThrashingDetector.h"
 #include <pthread.h>
 #include <atomic>
 
 using namespace std;
 
-// Forward declaration
+// Forward declarations
 class HMFQQueue;
+class PageTable;
+class TLB;
+class WorkingSetManager;
+class ClockReplacer;
+class ThrashingDetector;
 
 class SimulationEngine {
 private:
@@ -28,6 +38,17 @@ private:
     GateManager* gate_manager;
     TaxiwayGraph* taxiway_graph;
     HMFQQueue* scheduler;  // HMFQ-PPRA Scheduler
+    
+    // Memory Manager components
+    TLB* tlb;
+    WorkingSetManager* working_set_manager;
+    ClockReplacer* clock_replacer;
+    ThrashingDetector* thrashing_detector;
+    
+    // Performance tracking
+    atomic<long long> total_turnaround_time;
+    atomic<int> on_time_flights;
+    atomic<int> delayed_flights;
     
     // Control threads
     pthread_t event_dispatcher_thread;
@@ -69,6 +90,8 @@ public:
     GateManager* get_gate_manager() { return gate_manager; }
     TaxiwayGraph* get_taxiway_graph() { return taxiway_graph; }
     HMFQQueue* get_scheduler() { return scheduler; }
+    TLB* get_tlb() { return tlb; }
+    ThrashingDetector* get_thrashing_detector() { return thrashing_detector; }
     
     // Flight tracking updates
     void increment_active_flights() { active_flight_count++; }
@@ -80,6 +103,13 @@ public:
     void increment_flights_departing() { flights_departing++; }
     void decrement_flights_departing() { flights_departing--; }
     void increment_total_handled() { total_flights_handled++; }
+    
+    // Performance tracking
+    void record_turnaround(long long time_ms) { total_turnaround_time += time_ms; }
+    void record_on_time() { on_time_flights++; }
+    void record_delayed() { delayed_flights++; }
+    double get_avg_turnaround() { return total_flights_handled > 0 ? (double)total_turnaround_time / total_flights_handled : 0; }
+    double get_on_time_rate() { int total = on_time_flights + delayed_flights; return total > 0 ? (double)on_time_flights / total * 100 : 0; }
 };
 
 #endif // SIMULATION_ENGINE_H
