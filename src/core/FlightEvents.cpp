@@ -350,18 +350,18 @@ void* flight_lifecycle_handler(void* arg) {
     RevenueModel* revenue_model = engine->get_revenue_model();
     
     // Record costs
-    cost_model->record_fuel(flight->aircraft->fuel_capacity / 2);  // Assume 50% refuel
+    cost_model->record_fuel(flight->aircraft->fuel_capacity_gallons / 2);  // Assume 50% refuel
     cost_model->record_gate((turnaround / 60.0));  // Gate time in hours
     if (flight->actual_departure_time > scheduled_departure) {
         int delay_minutes = (flight->actual_departure_time - scheduled_departure) / 60;
-        cost_model->record_delay(delay_minutes, flight->passengers);
+        cost_model->record_delay(delay_minutes, flight->passenger_count);
     }
     
-    // Record revenue
-    revenue_model->record_landing(flight->aircraft->max_takeoff_weight / 1000.0, 
-                                   flight->type == INTERNATIONAL);
-    revenue_model->record_gate((turnaround / 60.0), flight->type == INTERNATIONAL);
-    revenue_model->record_passengers(flight->passengers);
+    // Record revenue (use cargo_capacity_kg as proxy for weight)
+    revenue_model->record_landing(flight->aircraft->cargo_capacity_kg / 1000.0, 
+                                   flight->flight_type == INTERNATIONAL);
+    revenue_model->record_gate((turnaround / 60.0), flight->flight_type == INTERNATIONAL);
+    revenue_model->record_passengers(flight->passenger_count);
     
     log_msg.str("");
     log_msg << "[FINANCE] Flight " << flight->flight_id 
