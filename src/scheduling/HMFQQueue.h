@@ -6,6 +6,8 @@
 #include "AgingManager.h"
 #include "QuantumManager.h"
 #include "PreemptionManager.h"
+#include "LearningEngine.h"
+#include "PriorityInheritance.h"
 #include <vector>
 #include <queue>
 #include <pthread.h>
@@ -28,6 +30,8 @@ private:
     AgingManager* aging_manager;
     QuantumManager* quantum_manager;
     PreemptionManager* preemption_manager;
+    LearningEngine* learning_engine;
+    PriorityInheritance* priority_inheritance;
     
     // Thread safety
     pthread_mutex_t scheduler_mutex;
@@ -91,6 +95,11 @@ public:
     // Getters for component managers
     PISCalculator* get_pis_calculator() { return pis_calculator; }
     QuantumManager* get_quantum_manager() { return quantum_manager; }
+    LearningEngine* get_learning_engine() { return learning_engine; }
+    PriorityInheritance* get_priority_inheritance() { return priority_inheritance; }
+    
+    // Trigger learning adjustment
+    void trigger_learning_adjustment();
 };
 
 #endif // HMFQ_QUEUE_H

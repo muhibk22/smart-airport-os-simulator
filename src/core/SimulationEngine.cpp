@@ -29,6 +29,21 @@ SimulationEngine::SimulationEngine() {
     // Resource pool sizes: 8 fuel trucks, 6 catering, 10 baggage, 4 cleaning, 5 buses, 6 tugs, 8 GPUs
     resource_manager->initialize(8, 6, 10, 4, 5, 6, 8);
     
+    // Initialize crisis manager for weather and emergencies
+    crisis_manager = new CrisisManager();
+    
+    // Initialize prefetcher for predictive memory access
+    prefetcher = new Prefetcher();
+    
+    // Initialize crew manager with LRU assignment
+    crew_manager = new CrewManager();
+    // Crew pool: 20 pilots, 20 co-pilots, 60 attendants, 15 technicians, 30 handlers, 10 agents, 10 fuel techs
+    crew_manager->initialize(20, 20, 60, 15, 30, 10, 10);
+    
+    // Initialize finance tracking
+    cost_model = new CostModel();
+    revenue_model = new RevenueModel();
+    
     simulation_running = false;
     simulation_duration = 86400; // 24 hours default
     
@@ -62,6 +77,11 @@ SimulationEngine::~SimulationEngine() {
     delete clock_replacer;
     delete thrashing_detector;
     delete resource_manager;
+    delete crisis_manager;
+    delete prefetcher;
+    delete crew_manager;
+    delete cost_model;
+    delete revenue_model;
 }
 
 void SimulationEngine::load_configuration() {
@@ -230,14 +250,84 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
 
 void* SimulationEngine::crisis_monitor_func(void* arg) {
     SimulationEngine* engine = static_cast<SimulationEngine*>(arg);
+    Logger* logger = Logger::get_instance();
+    CrisisManager* crisis_mgr = engine->get_crisis_manager();
+    
+    int weather_event_id = 0;
+    int emergency_event_id = 0;
+    int check_cycle = 0;
+    
+    logger->log_event("[CrisisMonitor] Crisis monitoring thread started");
     
     while (engine->simulation_running) {
-        // Monitor for crisis conditions
-        sleep(5); // Check every 5 seconds
+        long long current_time = engine->get_time_manager()->get_current_time();
         
-        // Would implement weather monitoring, gridlock detection etc.
+        // Update weather status
+        crisis_mgr->update_weather(current_time);
+        
+        // Random weather event generation (5% chance every 10 seconds)
+        if (check_cycle % 2 == 0 && (rand() % 100) < 5) {
+            WeatherType wtype = static_cast<WeatherType>(rand() % 6);
+            WeatherSeverity wsev = static_cast<WeatherSeverity>((rand() % 4) + 1);
+            long long duration = 60 + (rand() % 240);  // 1-5 minutes
+            
+            WeatherEvent* weather = new WeatherEvent(
+                weather_event_id++, wtype, wsev, current_time, duration);
+            crisis_mgr->add_weather_event(weather);
+            
+            ostringstream log_msg;
+            log_msg << "[CRISIS] Weather event: " << WeatherEvent::type_to_string(wtype)
+                    << " severity " << WeatherEvent::severity_to_string(wsev)
+                    << " - capacity now " << (crisis_mgr->get_operational_capacity() * 100) << "%";
+            logger->log_event(log_msg.str());
+        }
+        
+        // Random emergency event generation (2% chance every 10 seconds)
+        if (check_cycle % 2 == 1 && (rand() % 100) < 2) {
+            EmergencyType etype = static_cast<EmergencyType>(rand() % 7);
+            int affected_flight = rand() % 10;  // Random flight ID
+            
+            EmergencyEvent* emergency = new EmergencyEvent(
+                emergency_event_id++, etype, affected_flight, current_time);
+            crisis_mgr->report_emergency(emergency);
+            
+            ostringstream log_msg;
+            log_msg << "[CRISIS] Emergency: " << EmergencyEvent::type_to_string(etype)
+                    << " on flight " << affected_flight
+                    << " priority " << emergency->get_priority();
+            logger->log_event(log_msg.str());
+        }
+        
+        // Process next emergency if available
+        EmergencyEvent* next_emergency = crisis_mgr->get_next_emergency();
+        if (next_emergency) {
+            // Simulate emergency handling
+            int resolution_time = next_emergency->get_estimated_resolution_minutes();
+            
+            ostringstream log_msg;
+            log_msg << "[CRISIS] Handling emergency " << next_emergency->get_id()
+                    << " type " << EmergencyEvent::type_to_string(next_emergency->get_type())
+                    << " - ETA " << resolution_time << " minutes";
+            logger->log_event(log_msg.str());
+            
+            // Auto-resolve after simulated time (immediate for simulation)
+            crisis_mgr->resolve_emergency(next_emergency->get_id(), current_time + resolution_time);
+            
+            log_msg.str("");
+            log_msg << "[CRISIS] Emergency " << next_emergency->get_id() << " resolved";
+            logger->log_event(log_msg.str());
+        }
+        
+        // Check for ground stop
+        if (crisis_mgr->is_ground_stop()) {
+            logger->log_event("[CRISIS] GROUND STOP IN EFFECT - All departures halted");
+        }
+        
+        check_cycle++;
+        sleep(5); // Check every 5 seconds
     }
     
+    logger->log_event("[CrisisMonitor] Crisis monitoring thread stopped");
     return nullptr;
 }
 

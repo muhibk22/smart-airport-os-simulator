@@ -15,6 +15,11 @@
 #include "../memory/ClockReplacer.h"
 #include "../memory/ThrashingDetector.h"
 #include "../resources/ResourceManager.h"
+#include "../crisis/CrisisManager.h"
+#include "../memory/Prefetcher.h"
+#include "../crew/CrewManager.h"
+#include "../finance/CostModel.h"
+#include "../finance/RevenueModel.h"
 #include <pthread.h>
 #include <atomic>
 
@@ -28,6 +33,11 @@ class WorkingSetManager;
 class ClockReplacer;
 class ThrashingDetector;
 class ResourceManager;
+class CrisisManager;
+class Prefetcher;
+class CrewManager;
+class CostModel;
+class RevenueModel;
 
 class SimulationEngine {
 private:
@@ -49,6 +59,19 @@ private:
     
     // Resource Manager (Banker's Algorithm)
     ResourceManager* resource_manager;
+    
+    // Crisis Manager (Weather and Emergencies)
+    CrisisManager* crisis_manager;
+    
+    // Prefetcher for predictive memory access
+    Prefetcher* prefetcher;
+    
+    // Crew Manager (LRU assignment with fatigue)
+    CrewManager* crew_manager;
+    
+    // Finance tracking
+    CostModel* cost_model;
+    RevenueModel* revenue_model;
     
     // Performance tracking
     atomic<long long> total_turnaround_time;
@@ -98,6 +121,12 @@ public:
     TLB* get_tlb() { return tlb; }
     ThrashingDetector* get_thrashing_detector() { return thrashing_detector; }
     ResourceManager* get_resource_manager() { return resource_manager; }
+    CrisisManager* get_crisis_manager() { return crisis_manager; }
+    Prefetcher* get_prefetcher() { return prefetcher; }
+    WorkingSetManager* get_working_set_manager() { return working_set_manager; }
+    CrewManager* get_crew_manager() { return crew_manager; }
+    CostModel* get_cost_model() { return cost_model; }
+    RevenueModel* get_revenue_model() { return revenue_model; }
     
     // Flight tracking updates
     void increment_active_flights() { active_flight_count++; }

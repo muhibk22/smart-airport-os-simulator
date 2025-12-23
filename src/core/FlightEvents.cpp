@@ -4,8 +4,15 @@
 #include "../airport/GateManager.h"
 #include "../scheduling/HMFQQueue.h"
 #include "../memory/TLB.h"
+#include "../memory/Prefetcher.h"
+#include "../memory/WorkingSetManager.h"
+#include "../memory/ThrashingDetector.h"
 #include "../resources/ResourceManager.h"
 #include "../resources/Resource.h"
+#include "../crew/CrewManager.h"
+#include "../crew/Crew.h"
+#include "../finance/CostModel.h"
+#include "../finance/RevenueModel.h"
 #include <sstream>
 #include <unistd.h>
 #include <cstdlib>
@@ -30,13 +37,48 @@ void* flight_lifecycle_handler(void* arg) {
     // Track this flight as active
     engine->increment_active_flights();
     
-    // Simulate memory access for flight data (passenger manifest, baggage, etc.)
+    // ===== AWSC-PPC Memory Simulation =====
     int flight_id_hash = abs((int)(flight->flight_id[0] + flight->flight_id[1] * 256));
+    Prefetcher* prefetcher = engine->get_prefetcher();
+    ThrashingDetector* thrash_detector = engine->get_thrashing_detector();
+    WorkingSetManager* ws_manager = engine->get_working_set_manager();
+    
+    // Calculate working set window based on phase (initialization)
+    double fault_rate = thrash_detector->is_in_thrashing_state() ? 0.25 : 0.05;
+    int ws_window = ws_manager->calculate_window(PHASE_INIT, fault_rate);
+    
+    log_msg.str("");
+    log_msg << "[MEMORY] Flight " << flight->flight_id << " working set window: " << ws_window;
+    logger->log_memory(log_msg.str());
+    
+    // Simulate memory access for flight data (passenger manifest, baggage, etc.)
     for (int page = 0; page < 5; page++) {  // Each flight accesses ~5 pages
+        // Record access for prefetcher pattern detection
+        prefetcher->record_access(flight_id_hash, page);
+        
         int frame = tlb->lookup(flight_id_hash, page);
         if (frame < 0) {
-            // TLB miss - simulate page load
+            // TLB miss - simulate page fault
+            thrash_detector->record_fault();
             tlb->insert(flight_id_hash, page, page + flight_id_hash % 100);
+            
+            log_msg.str("");
+            log_msg << "[MEMORY] Flight " << flight->flight_id << " TLB miss on page " << page;
+            logger->log_memory(log_msg.str());
+        } else {
+            // TLB hit
+            thrash_detector->record_hit();
+        }
+    }
+    
+    // Prefetch predicted pages
+    vector<int> prefetch_candidates = prefetcher->get_prefetch_candidates(flight_id_hash);
+    for (int pred_page : prefetch_candidates) {
+        if (tlb->lookup(flight_id_hash, pred_page) < 0) {
+            tlb->insert(flight_id_hash, pred_page, pred_page + flight_id_hash % 100);
+            log_msg.str("");
+            log_msg << "[MEMORY] Flight " << flight->flight_id << " prefetched page " << pred_page;
+            logger->log_memory(log_msg.str());
         }
     }
     
@@ -302,6 +344,30 @@ void* flight_lifecycle_handler(void* arg) {
     
     // Complete scheduler operation
     scheduler->complete(landing_op);
+    
+    // ===== FINANCIAL TRACKING =====
+    CostModel* cost_model = engine->get_cost_model();
+    RevenueModel* revenue_model = engine->get_revenue_model();
+    
+    // Record costs
+    cost_model->record_fuel(flight->aircraft->fuel_capacity / 2);  // Assume 50% refuel
+    cost_model->record_gate((turnaround / 60.0));  // Gate time in hours
+    if (flight->actual_departure_time > scheduled_departure) {
+        int delay_minutes = (flight->actual_departure_time - scheduled_departure) / 60;
+        cost_model->record_delay(delay_minutes, flight->passengers);
+    }
+    
+    // Record revenue
+    revenue_model->record_landing(flight->aircraft->max_takeoff_weight / 1000.0, 
+                                   flight->type == INTERNATIONAL);
+    revenue_model->record_gate((turnaround / 60.0), flight->type == INTERNATIONAL);
+    revenue_model->record_passengers(flight->passengers);
+    
+    log_msg.str("");
+    log_msg << "[FINANCE] Flight " << flight->flight_id 
+            << " - Revenue: $" << revenue_model->get_total_revenue()
+            << " Cost: $" << cost_model->get_total_cost();
+    logger->log_performance(log_msg.str());
     
     // Update counters
     engine->decrement_active_flights();

@@ -12,6 +12,8 @@ HMFQQueue::HMFQQueue() {
     aging_manager = new AgingManager();
     quantum_manager = new QuantumManager();
     preemption_manager = new PreemptionManager();
+    learning_engine = new LearningEngine(pis_calculator);
+    priority_inheritance = new PriorityInheritance();
     
     pthread_mutex_init(&scheduler_mutex, nullptr);
     pthread_cond_init(&operation_available, nullptr);
@@ -31,6 +33,8 @@ HMFQQueue::~HMFQQueue() {
     delete aging_manager;
     delete quantum_manager;
     delete preemption_manager;
+    delete learning_engine;
+    delete priority_inheritance;
     
     // Clean up remaining operations
     for (int i = 0; i < 5; i++) {
@@ -237,6 +241,12 @@ void HMFQQueue::complete(Operation* op) {
     msg << "[HMFQ] Completed operation " << op->id 
         << " (wait: " << op->wait_time << ", preemptions: " << op->preemption_count << ")";
     logger->log_scheduling(msg.str());
+    
+    // Update learning engine with completion data
+    long long completion_time = op->total_time - op->remaining_time;
+    learning_engine->update_completion_time(completion_time);
+    learning_engine->update_wait_time(op->wait_time);
+    learning_engine->update_on_time_rate(op->wait_time < 300);  // On-time if wait < 5 min
 }
 
 void HMFQQueue::block(Operation* op) {
@@ -316,4 +326,23 @@ int HMFQQueue::get_queue_size(int queue_level) {
 double HMFQQueue::get_average_wait_time() const {
     if (total_operations_scheduled == 0) return 0.0;
     return (double)total_wait_time / total_operations_scheduled;
+}
+
+void HMFQQueue::trigger_learning_adjustment() {
+    pthread_mutex_lock(&scheduler_mutex);
+    
+    // Adjust PIS weights based on learning engine feedback
+    learning_engine->adjust_weights();
+    
+    Logger* logger = Logger::get_instance();
+    ostringstream msg;
+    msg << "[HMFQ] Learning adjustment triggered - new weights: "
+        << "alpha=" << pis_calculator->get_alpha()
+        << " beta=" << pis_calculator->get_beta()
+        << " gamma=" << pis_calculator->get_gamma()
+        << " delta=" << pis_calculator->get_delta()
+        << " epsilon=" << pis_calculator->get_epsilon();
+    logger->log_scheduling(msg.str());
+    
+    pthread_mutex_unlock(&scheduler_mutex);
 }
