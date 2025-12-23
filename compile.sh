@@ -29,6 +29,15 @@ g++ -std=c++17 -pthread -I src \
     src/scheduling/HMFQQueue.cpp \
     src/scheduling/LearningEngine.cpp \
     src/scheduling/PriorityInheritance.cpp \
+    src/memory/Page.cpp \
+    src/memory/PageFrame.cpp \
+    src/memory/PageTable.cpp \
+    src/memory/TLB.cpp \
+    src/memory/WorkingSetManager.cpp \
+    src/memory/ClockReplacer.cpp \
+    src/memory/ThrashingDetector.cpp \
+    src/memory/Prefetcher.cpp \
+    src/memory/CompressionManager.cpp \
     tests/simple_test.cpp \
     -o simple_test
 
