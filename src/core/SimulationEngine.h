@@ -83,6 +83,10 @@ private:
     pthread_t event_dispatcher_thread;
     pthread_t dashboard_updater_thread;
     pthread_t crisis_monitor_thread;
+    pthread_t flight_generator_thread;  // Continuous flight generation
+    
+    // Flight generation
+    atomic<int> next_flight_id;
     
     atomic<bool> simulation_running;
     long long simulation_duration;
@@ -98,6 +102,7 @@ private:
     static void* event_dispatcher_func(void* arg);
     static void* dashboard_updater_func(void* arg);
     static void* crisis_monitor_func(void* arg);
+    static void* flight_generator_func(void* arg);  // Generates new flights
     
     // Initialization
     void load_configuration();

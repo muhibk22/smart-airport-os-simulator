@@ -59,6 +59,7 @@ SimulationEngine::SimulationEngine() {
     total_turnaround_time = 0;
     on_time_flights = 0;
     delayed_flights = 0;
+    next_flight_id = 100;  // Start flight IDs at 100
 }
 
 SimulationEngine::~SimulationEngine() {
@@ -362,6 +363,64 @@ void* SimulationEngine::crisis_monitor_func(void* arg) {
     return nullptr;
 }
 
+void* SimulationEngine::flight_generator_func(void* arg) {
+    SimulationEngine* engine = static_cast<SimulationEngine*>(arg);
+    Logger* logger = Logger::get_instance();
+    
+    logger->log_event("[FlightGenerator] Flight generation thread started");
+    
+    // Aircraft types for random selection
+    AircraftType aircraft_types[] = {A380, B777, B737, A320, B777F, G650, FALCON_7X};
+    const char* airlines[] = {"AA", "UA", "DL", "BA", "LH", "AF", "EK", "SQ", "QF", "CX"};
+    
+    while (engine->simulation_running) {
+        // Generate a new flight every 2-5 real seconds (20-50 sim seconds)
+        int delay_seconds = 2 + (rand() % 4);  // 2-5 seconds
+        sleep(delay_seconds);
+        
+        if (!engine->simulation_running) break;
+        
+        // Check if there's capacity (don't overload)
+        int active = engine->active_flight_count.load();
+        if (active >= 8) {  // Max 8 concurrent flights
+            continue;
+        }
+        
+        // Generate flight ID
+        int flight_num = engine->next_flight_id++;
+        string airline = airlines[rand() % 10];
+        string flight_id = airline + to_string(flight_num);
+        
+        // Random aircraft type
+        AircraftType type = aircraft_types[rand() % 7];
+        Aircraft* aircraft = new Aircraft(type);
+        
+        // Random flight type
+        FlightType ftype = (rand() % 2 == 0) ? DOMESTIC : INTERNATIONAL;
+        
+        // Schedule arrival in near future (5-30 seconds from now)
+        long long current_time = engine->get_time_manager()->get_current_time();
+        long long arrival_time = current_time + 5 + (rand() % 26);
+        long long departure_time = arrival_time + 120 + (rand() % 180);  // 2-5 min turnaround
+        
+        // Create flight
+        Flight* flight = new Flight(flight_id, aircraft, ftype, arrival_time, departure_time);
+        
+        // Schedule arrival event
+        FlightArrivalEvent* arrival_event = new FlightArrivalEvent(flight, engine, arrival_time);
+        engine->get_event_queue()->push(arrival_event);
+        
+        ostringstream log_msg;
+        log_msg << "[FlightGenerator] Created flight " << flight_id 
+                << " (" << aircraft->get_type_name() << ")"
+                << " arriving at T+" << arrival_time;
+        logger->log_event(log_msg.str());
+    }
+    
+    logger->log_event("[FlightGenerator] Flight generation thread stopped");
+    return nullptr;
+}
+
 void SimulationEngine::initialize() {
     logger->log_event("[SimulationEngine] Initializing simulation...");
     
@@ -381,8 +440,9 @@ void SimulationEngine::run() {
     pthread_create(&event_dispatcher_thread, nullptr, event_dispatcher_func, this);
     pthread_create(&dashboard_updater_thread, nullptr, dashboard_updater_func, this);
     pthread_create(&crisis_monitor_thread, nullptr, crisis_monitor_func, this);
+    pthread_create(&flight_generator_thread, nullptr, flight_generator_func, this);
     
-    logger->log_event("[SimulationEngine] All threads started");
+    logger->log_event("[SimulationEngine] All threads started (including flight generator)");
     
     // Main simulation loop - advance time with real delays
     // 1 simulation time unit = 100ms real time (for testing)
@@ -406,6 +466,7 @@ void SimulationEngine::stop() {
     pthread_join(event_dispatcher_thread, nullptr);
     pthread_join(dashboard_updater_thread, nullptr);
     pthread_join(crisis_monitor_thread, nullptr);
+    pthread_join(flight_generator_thread, nullptr);
     
     logger->log_event("[SimulationEngine] All threads stopped");
     logger->flush_all();
