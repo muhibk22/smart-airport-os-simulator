@@ -326,8 +326,8 @@ void* flight_lifecycle_handler(void* arg) {
     long long turnaround = flight->actual_departure_time - flight->actual_arrival_time;
     engine->record_turnaround(turnaround);
     
-    // Check if on-time (assume scheduled departure was 30 time units after arrival)
-    long long scheduled_departure = flight->actual_arrival_time + 30;
+    // Check if on-time (allow 120 time units for turnaround - realistic target)
+    long long scheduled_departure = flight->actual_arrival_time + 120;
     if (flight->actual_departure_time <= scheduled_departure) {
         engine->record_on_time();
     } else {
@@ -349,9 +349,10 @@ void* flight_lifecycle_handler(void* arg) {
     CostModel* cost_model = engine->get_cost_model();
     RevenueModel* revenue_model = engine->get_revenue_model();
     
-    // Record costs
-    cost_model->record_fuel(flight->aircraft->fuel_capacity_gallons / 2);  // Assume 50% refuel
-    cost_model->record_gate((turnaround / 60.0));  // Gate time in hours
+    // Record costs (scale fuel to reasonable amount - 500-2000 gallons typical refuel)
+    double fuel_gallons = (flight->aircraft->fuel_capacity_gallons / 20.0);  // ~5% refuel for short turn
+    cost_model->record_fuel(fuel_gallons);
+    cost_model->record_gate((turnaround / 3600.0));  // Gate time in hours (turnaround in seconds)
     if (flight->actual_departure_time > scheduled_departure) {
         int delay_minutes = (flight->actual_departure_time - scheduled_departure) / 60;
         cost_model->record_delay(delay_minutes, flight->passenger_count);
@@ -360,7 +361,7 @@ void* flight_lifecycle_handler(void* arg) {
     // Record revenue (use cargo_capacity_kg as proxy for weight)
     revenue_model->record_landing(flight->aircraft->cargo_capacity_kg / 1000.0, 
                                    flight->flight_type == INTERNATIONAL);
-    revenue_model->record_gate((turnaround / 60.0), flight->flight_type == INTERNATIONAL);
+    revenue_model->record_gate((turnaround / 3600.0), flight->flight_type == INTERNATIONAL);
     revenue_model->record_passengers(flight->passenger_count);
     
     log_msg.str("");
