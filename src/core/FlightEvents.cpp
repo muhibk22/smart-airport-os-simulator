@@ -91,7 +91,7 @@ void* flight_lifecycle_handler(void* arg) {
     
     // ===== PHASE 1: ARRIVAL & RUNWAY REQUEST WITH GO-AROUND =====
     // REQ-1: Go-around procedure implementation
-    static const int GO_AROUND_DELAY_SECONDS = 8;  // 8 minute delay (converted to real seconds for sleep)
+    static const int GO_AROUND_DELAY_SECONDS = 2;  // Reduced delay for faster turnaround
     static const int MAX_GO_AROUNDS = 3;
     static const double GO_AROUND_FUEL_COST = 500.0;  // Extra fuel cost per go-around
     
@@ -181,7 +181,7 @@ go_around_retry:
     log_msg << "[FLIGHT] " << flight->flight_id << " landing on runway " << runway->get_name();
     logger->log_event(log_msg.str());
     
-    sleep(5); // Simulate landing - longer so dashboard can see it
+    usleep(500000); // 0.5s landing - faster turnaround
     
     flight->actual_arrival_time = engine->get_time_manager()->get_current_time();
     
@@ -199,7 +199,7 @@ go_around_retry:
     
     // ===== PHASE 4: TAXIING TO GATE =====
     flight->status = TAXIING_TO_GATE;
-    sleep(3); // Simulate taxi time - longer so dashboard can see it
+    usleep(300000); // 0.3s taxi time - faster turnaround
     
     // ===== PHASE 5: GATE REQUEST =====
     Gate* gate = nullptr;
@@ -271,7 +271,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << fuel_truck->get_name() << " - refueling";
         logger->log_resource(log_msg.str());
-        sleep(2); // Simulate refueling time
+        usleep(200000); // 0.2s refueling
         res_mgr->release_resource(fuel_truck);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released fuel truck - refueling complete";
@@ -288,7 +288,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << catering->get_name() << " - catering";
         logger->log_resource(log_msg.str());
-        sleep(1); // Simulate catering time
+        usleep(100000); // 0.1s catering
         res_mgr->release_resource(catering);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released catering - complete";
@@ -305,7 +305,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << cleaning->get_name() << " - cleaning";
         logger->log_resource(log_msg.str());
-        sleep(2); // Simulate cleaning time
+        usleep(200000); // 0.2s cleaning
         res_mgr->release_resource(cleaning);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released cleaning crew - complete";
@@ -322,7 +322,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << baggage->get_name() << " - loading baggage";
         logger->log_resource(log_msg.str());
-        sleep(1); // Simulate baggage loading
+        usleep(100000); // 0.1s baggage
         res_mgr->release_resource(baggage);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released baggage cart - complete";
@@ -360,7 +360,7 @@ go_around_retry:
     
     // Release tug after pushback
     if (tug) {
-        sleep(1); // Pushback time
+        usleep(100000); // 0.1s pushback
         res_mgr->release_resource(tug);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released tug - pushback complete";

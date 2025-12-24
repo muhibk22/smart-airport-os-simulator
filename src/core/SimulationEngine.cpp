@@ -298,8 +298,8 @@ void* SimulationEngine::crisis_monitor_func(void* arg) {
         // Update weather status
         crisis_mgr->update_weather(current_time);
         
-        // Random weather event generation (20% chance every 4 seconds)
-        if (check_cycle % 2 == 0 && (rand() % 100) < 20) {
+        // Random weather event generation (5% chance every 4 seconds - reduced to prevent chaos)
+        if (check_cycle % 2 == 0 && (rand() % 100) < 5) {
             WeatherType wtype = static_cast<WeatherType>(rand() % 6);
             WeatherSeverity wsev = static_cast<WeatherSeverity>((rand() % 4) + 1);
             long long duration = 60 + (rand() % 240);  // 1-5 minutes
@@ -315,8 +315,8 @@ void* SimulationEngine::crisis_monitor_func(void* arg) {
             logger->log_event(log_msg.str());
         }
         
-        // Random emergency event generation (10% chance every 4 seconds)
-        if (check_cycle % 2 == 1 && (rand() % 100) < 10) {
+        // Random emergency event generation (3% chance every 4 seconds - reduced)
+        if (check_cycle % 2 == 1 && (rand() % 100) < 3) {
             EmergencyType etype = static_cast<EmergencyType>(rand() % 7);
             int affected_flight = rand() % 10;  // Random flight ID
             
