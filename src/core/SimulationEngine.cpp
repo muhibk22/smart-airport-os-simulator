@@ -366,8 +366,8 @@ void* SimulationEngine::flight_generator_func(void* arg) {
     const char* airlines[] = {"AA", "UA", "DL", "BA", "LH", "AF", "EK", "SQ", "QF", "CX"};
     
     while (engine->simulation_running) {
-        // Generate a new flight every 8-15 real seconds (slower rate for realism)
-        int delay_seconds = 8 + (rand() % 8);  // 8-15 seconds
+        // Generate a new flight every 3-8 real seconds (faster spawn rate)
+        int delay_seconds = 3 + (rand() % 6);  // 3-8 seconds
         sleep(delay_seconds);
         
         if (!engine->simulation_running) break;
