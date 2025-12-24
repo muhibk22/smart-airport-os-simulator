@@ -39,6 +39,10 @@ target_link_libraries(SmartAirportOS PRIVATE Threads::Threads)
 add_executable(simple_test tests/simple_test.cpp ${SOURCES})
 target_link_libraries(simple_test PRIVATE Threads::Threads)
 
+# Requirements test executable (REQ-6)
+add_executable(requirements_test tests/requirements_test.cpp ${SOURCES})
+target_link_libraries(requirements_test PRIVATE Threads::Threads)
+
 # Compiler flags
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(SmartAirportOS PRIVATE -Wall -Wextra -pthread)
