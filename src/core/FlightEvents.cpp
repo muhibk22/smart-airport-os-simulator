@@ -13,6 +13,8 @@
 #include "../crew/Crew.h"
 #include "../finance/CostModel.h"
 #include "../finance/RevenueModel.h"
+#include "../crisis/CrisisManager.h"      // REQ-1: Go-around weather check
+#include "../crisis/WeatherEvent.h"       // REQ-1: Weather severity check
 #include <sstream>
 #include <unistd.h>
 #include <cstdlib>
@@ -87,17 +89,37 @@ void* flight_lifecycle_handler(void* arg) {
     Operation* landing_op = scheduler->create_operation(flight, OP_LANDING, arrival_time);
     scheduler->enqueue(landing_op);
     
-    // ===== PHASE 1: ARRIVAL & RUNWAY REQUEST =====
+    // ===== PHASE 1: ARRIVAL & RUNWAY REQUEST WITH GO-AROUND =====
+    // REQ-1: Go-around procedure implementation
+    static const int GO_AROUND_DELAY_SECONDS = 8;  // 8 minute delay (converted to real seconds for sleep)
+    static const int MAX_GO_AROUNDS = 3;
+    static const double GO_AROUND_FUEL_COST = 500.0;  // Extra fuel cost per go-around
+    
+    CrisisManager* crisis_mgr = engine->get_crisis_manager();
+    
+go_around_retry:
     flight->status = APPROACHING;
     log_msg.str("");
     log_msg << "[FLIGHT] " << flight->flight_id << " approaching, requesting runway";
     logger->log_event(log_msg.str());
     
+    // REQ-1: Check weather safety before landing
+    bool weather_unsafe = false;
+    if (crisis_mgr) {
+        WeatherEvent* active_weather = crisis_mgr->get_active_weather();
+        if (active_weather && active_weather->get_severity() >= SEV_SEVERE) {
+            weather_unsafe = true;
+        }
+        if (crisis_mgr->is_ground_stop()) {
+            weather_unsafe = true;
+        }
+    }
+    
     Runway* runway = nullptr;
     int attempts = 0;
     const int MAX_ATTEMPTS = 30;
     
-    while (runway == nullptr && attempts < MAX_ATTEMPTS) {
+    while (runway == nullptr && attempts < MAX_ATTEMPTS && !weather_unsafe) {
         runway = engine->get_runway_manager()->allocate_runway(
             flight, 
             engine->get_time_manager()->get_current_time()
@@ -113,14 +135,41 @@ void* flight_lifecycle_handler(void* arg) {
         }
     }
     
-    if (runway == nullptr) {
-        log_msg.str("");
-        log_msg << "[FLIGHT] " << flight->flight_id << " FAILED to get runway after " 
-                << MAX_ATTEMPTS << " attempts";
-        logger->log_event(log_msg.str());
-        engine->decrement_active_flights();
-        delete data;
-        return nullptr;
+    // REQ-1: Trigger go-around if runway unavailable or weather unsafe
+    if (runway == nullptr || weather_unsafe) {
+        if (flight->go_around_count < MAX_GO_AROUNDS) {
+            flight->go_around_count++;
+            flight->status = GO_AROUND;
+            
+            log_msg.str("");
+            log_msg << "[GO-AROUND] Flight " << flight->flight_id 
+                    << " go-around #" << flight->go_around_count
+                    << " - " << (weather_unsafe ? "weather unsafe" : "runway unavailable");
+            logger->log_event(log_msg.str());
+            
+            // Add fuel cost for go-around
+            CostModel* cost_model = engine->get_cost_model();
+            if (cost_model) {
+                cost_model->record_fuel(GO_AROUND_FUEL_COST / 3.50);  // Convert to gallons
+                log_msg.str("");
+                log_msg << "[GO-AROUND] Flight " << flight->flight_id 
+                        << " extra fuel cost: $" << GO_AROUND_FUEL_COST;
+                logger->log_event(log_msg.str());
+            }
+            
+            // Wait go-around delay then retry
+            sleep(GO_AROUND_DELAY_SECONDS);
+            goto go_around_retry;
+        } else {
+            // Max go-arounds exceeded - diversion
+            log_msg.str("");
+            log_msg << "[DIVERSION] Flight " << flight->flight_id 
+                    << " diverted after " << MAX_GO_AROUNDS << " go-arounds";
+            logger->log_event(log_msg.str());
+            engine->decrement_active_flights();
+            delete data;
+            return nullptr;
+        }
     }
     
     flight->assigned_runway_id = runway->get_id();

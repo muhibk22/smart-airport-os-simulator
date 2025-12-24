@@ -119,6 +119,7 @@ string Crew::role_to_string(CrewRole role) {
         case CREW_BAGGAGE_HANDLER: return "Baggage Handler";
         case CREW_GATE_AGENT: return "Gate Agent";
         case CREW_FUEL_TECHNICIAN: return "Fuel Technician";
+        case CREW_ATC: return "Air Traffic Controller";  // REQ-5
         default: return "Unknown";
     }
 }

@@ -151,6 +151,16 @@ public:
     void record_delayed() { delayed_flights++; }
     double get_avg_turnaround() { return total_flights_handled > 0 ? (double)total_turnaround_time / total_flights_handled : 0; }
     double get_on_time_rate() { int total = on_time_flights + delayed_flights; return total > 0 ? (double)on_time_flights / total * 100 : 0; }
+    
+    // REQ-5: ATC (Air Traffic Controller) clearance system
+    static constexpr int TOTAL_ATC = 4;          // 4 ATCs available
+    static constexpr int ATC_SHIFT_HOURS = 8;    // 8-hour shifts
+    bool acquire_atc_clearance();                // Returns true if ATC available
+    void release_atc_clearance();                // Release ATC after landing/takeoff
+    int get_available_atc() const;
+    
+private:
+    atomic<int> available_atc;                   // REQ-5: Available ATC count
 };
 
 #endif // SIMULATION_ENGINE_H

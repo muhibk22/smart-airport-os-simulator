@@ -12,6 +12,7 @@ PassengerGroup::PassengerGroup(int id, int flight, int pax_count) {
     connection_time_minutes = 0;
     check_in_time = 0;
     boarding_time = 0;
+    passenger_flags = PAX_FLAG_NONE;  // REQ-3: Initialize flags
 }
 
 PassengerGroup::~PassengerGroup() {}

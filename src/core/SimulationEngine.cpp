@@ -60,6 +60,7 @@ SimulationEngine::SimulationEngine() {
     on_time_flights = 0;
     delayed_flights = 0;
     next_flight_id = 100;  // Start flight IDs at 100
+    available_atc = TOTAL_ATC;  // REQ-5: Initialize ATC count
 }
 
 SimulationEngine::~SimulationEngine() {
@@ -470,4 +471,35 @@ void SimulationEngine::stop() {
     
     logger->log_event("[SimulationEngine] All threads stopped");
     logger->flush_all();
+}
+
+// REQ-5: ATC clearance system implementation
+bool SimulationEngine::acquire_atc_clearance() {
+    int current = available_atc.load();
+    while (current > 0) {
+        if (available_atc.compare_exchange_weak(current, current - 1)) {
+            ostringstream log_msg;
+            log_msg << "[ATC] Clearance granted. Available ATCs: " << (current - 1) << "/" << TOTAL_ATC;
+            logger->log_event(log_msg.str());
+            return true;
+        }
+    }
+    logger->log_event("[ATC] Waiting for ATC clearance - all controllers busy");
+    return false;
+}
+
+void SimulationEngine::release_atc_clearance() {
+    int current = available_atc.load();
+    while (current < TOTAL_ATC) {
+        if (available_atc.compare_exchange_weak(current, current + 1)) {
+            ostringstream log_msg;
+            log_msg << "[ATC] Clearance released. Available ATCs: " << (current + 1) << "/" << TOTAL_ATC;
+            logger->log_event(log_msg.str());
+            return;
+        }
+    }
+}
+
+int SimulationEngine::get_available_atc() const {
+    return available_atc.load();
 }

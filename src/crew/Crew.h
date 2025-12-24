@@ -14,7 +14,8 @@ enum CrewRole {
     CREW_GROUND_TECHNICIAN,
     CREW_BAGGAGE_HANDLER,
     CREW_GATE_AGENT,
-    CREW_FUEL_TECHNICIAN
+    CREW_FUEL_TECHNICIAN,
+    CREW_ATC                // REQ-5: Air Traffic Controller (8-hour shifts)
 };
 
 enum CrewStatus {

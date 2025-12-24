@@ -17,6 +17,14 @@ enum PassengerStatus {
     PAX_DEPARTED
 };
 
+// REQ-3: Special passenger flags (bitmask)
+enum PassengerFlags {
+    PAX_FLAG_NONE = 0,
+    PAX_FLAG_VIP = 1,                  // 0.5x processing time
+    PAX_FLAG_DISABLED = 2,             // +5 min assistance delay
+    PAX_FLAG_UNACCOMPANIED_MINOR = 4   // Requires escort
+};
+
 class PassengerGroup {
 private:
     int group_id;
@@ -31,6 +39,9 @@ private:
     
     long long check_in_time;
     long long boarding_time;
+    
+    int passenger_flags;  // REQ-3: Bitmask of PassengerFlags
+
     
 public:
     PassengerGroup(int id, int flight, int pax_count);
@@ -52,6 +63,15 @@ public:
     
     // Risk assessment
     bool is_at_risk_of_missing_connection(long long current_time);
+    
+    // REQ-3: VIP/Special passenger handling
+    void set_flags(int flags) { passenger_flags = flags; }
+    int get_flags() const { return passenger_flags; }
+    bool is_vip() const { return (passenger_flags & PAX_FLAG_VIP) != 0; }
+    bool is_disabled() const { return (passenger_flags & PAX_FLAG_DISABLED) != 0; }
+    bool is_unaccompanied_minor() const { return (passenger_flags & PAX_FLAG_UNACCOMPANIED_MINOR) != 0; }
+    double get_processing_multiplier() const { return is_vip() ? 0.5 : 1.0; }  // VIP = 50% faster
+    int get_assistance_delay() const { return is_disabled() ? 300 : 0; }  // +5 min = 300 time units
 };
 
 #endif // PASSENGER_GROUP_H

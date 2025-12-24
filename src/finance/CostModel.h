@@ -18,6 +18,11 @@ private:
     static constexpr double DELAY_COST_PER_MINUTE = 1.0;  // Reduced from $100 for realistic balance
     static constexpr double EMERGENCY_COST_BASE = 5000.0;
     
+    // REQ-4: Daily budget constraint
+    static constexpr double DAILY_BUDGET = 100000.0;  // $100,000 daily budget
+    bool budget_exceeded;
+    bool budget_warning_logged;
+    
     double total_fuel_cost;
     double total_crew_cost;
     double total_facility_cost;
@@ -48,6 +53,12 @@ public:
     double get_fuel_cost() const { return total_fuel_cost; }
     double get_crew_cost() const { return total_crew_cost; }
     double get_delay_cost() const { return total_delay_cost; }
+    
+    // REQ-4: Budget constraint methods
+    bool is_budget_exceeded() const { return budget_exceeded; }
+    double get_remaining_budget() const { return DAILY_BUDGET - get_total_cost(); }
+    double get_daily_budget() const { return DAILY_BUDGET; }
+    void check_budget();  // Check and log warning if exceeded
     
     // Reset
     void reset();

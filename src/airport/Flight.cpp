@@ -11,7 +11,8 @@ Flight::Flight(const std::string& id, Aircraft* ac, FlightType ft,
       assigned_runway_id(-1),
       assigned_gate_id(-1),
       is_delayed(false),
-      delay_minutes(0) {
+      delay_minutes(0),
+      go_around_count(0) {  // REQ-1: Initialize go-around counter
     
     // Set passenger count
     passenger_count = aircraft->passenger_capacity * (70 + rand() % 30) / 100; // 70-100% full
@@ -44,6 +45,7 @@ std::string Flight::get_status_string() const {
     switch(status) {
         case SCHEDULED: return "SCHEDULED";
         case APPROACHING: return "APPROACHING";
+        case GO_AROUND: return "GO_AROUND";  // REQ-1
         case LANDING: return "LANDING";
         case TAXIING_TO_GATE: return "TAXIING_TO_GATE";
         case AT_GATE: return "AT_GATE";

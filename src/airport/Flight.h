@@ -14,6 +14,7 @@ enum FlightType {
 enum FlightStatus {
     SCHEDULED,
     APPROACHING,
+    GO_AROUND,      // REQ-1: Go-around when runway unavailable or weather unsafe
     LANDING,
     TAXIING_TO_GATE,
     AT_GATE,
@@ -41,6 +42,7 @@ public:
     int reserve_fuel_minutes;
     bool is_delayed;
     int delay_minutes;
+    int go_around_count;    // REQ-1: Track number of go-arounds (max 3)
     
     // Assigned resources
     int assigned_runway_id;
