@@ -459,15 +459,50 @@ void SimulationEngine::run() {
 }
 
 void SimulationEngine::stop() {
+    if (!simulation_running.load()) {
+        return;  // Already stopped
+    }
+    
     logger->log_event("[SimulationEngine] Stopping simulation...");
     
     simulation_running = false;
     
-    // Wait for threads to finish
+    // Give threads 2 seconds to stop gracefully, then force cancel
+    struct timespec timeout;
+    timeout.tv_sec = 2;
+    timeout.tv_nsec = 0;
+    
+    // Try to join threads with timeout - if they don't stop, cancel them
+    #ifndef _WIN32
+    // POSIX: Use pthread_timedjoin_np if available
+    if (pthread_timedjoin_np(event_dispatcher_thread, nullptr, &timeout) != 0) {
+        pthread_cancel(event_dispatcher_thread);
+    }
+    if (pthread_timedjoin_np(dashboard_updater_thread, nullptr, &timeout) != 0) {
+        pthread_cancel(dashboard_updater_thread);
+    }
+    if (pthread_timedjoin_np(crisis_monitor_thread, nullptr, &timeout) != 0) {
+        pthread_cancel(crisis_monitor_thread);
+    }
+    if (pthread_timedjoin_np(flight_generator_thread, nullptr, &timeout) != 0) {
+        pthread_cancel(flight_generator_thread);
+    }
+    #else
+    // Windows MinGW: pthread_timedjoin_np not available, use regular join with short sleep
+    usleep(100000);  // Give threads 100ms to notice simulation_running = false
+    
+    pthread_cancel(event_dispatcher_thread);
+    pthread_cancel(dashboard_updater_thread); 
+    pthread_cancel(crisis_monitor_thread);
+    pthread_cancel(flight_generator_thread);
+    
+    // Small delay then join to clean up
+    usleep(100000);
     pthread_join(event_dispatcher_thread, nullptr);
     pthread_join(dashboard_updater_thread, nullptr);
     pthread_join(crisis_monitor_thread, nullptr);
     pthread_join(flight_generator_thread, nullptr);
+    #endif
     
     logger->log_event("[SimulationEngine] All threads stopped");
     logger->flush_all();

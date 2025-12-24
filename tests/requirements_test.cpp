@@ -293,7 +293,7 @@ int main() {
     cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
     
     // Initialize logger for test output
-    Logger::get_instance();
+    Logger* logger = Logger::get_instance();
     
     // Run all tests
     test_go_around_status();
@@ -302,6 +302,9 @@ int main() {
     test_budget_constraint();
     test_atc_crew_type();
     test_deadlock_prevention();
+    
+    // Flush logger to ensure all logs are written
+    logger->flush_all();
     
     // Summary
     cout << "\n╔═══════════════════════════════════════════════════════════════╗" << endl;
