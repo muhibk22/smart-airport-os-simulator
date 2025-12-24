@@ -488,16 +488,11 @@ void SimulationEngine::stop() {
         pthread_cancel(flight_generator_thread);
     }
     #else
-    // Windows MinGW: pthread_timedjoin_np not available, use regular join with short sleep
-    usleep(100000);  // Give threads 100ms to notice simulation_running = false
+    // Windows MinGW: pthread_timedjoin_np not available
+    // Give threads time to notice simulation_running = false and exit
+    usleep(500000);  // 500ms should be enough for threads to complete current iteration
     
-    pthread_cancel(event_dispatcher_thread);
-    pthread_cancel(dashboard_updater_thread); 
-    pthread_cancel(crisis_monitor_thread);
-    pthread_cancel(flight_generator_thread);
-    
-    // Small delay then join to clean up
-    usleep(100000);
+    // Now join the threads (they should have stopped by now)
     pthread_join(event_dispatcher_thread, nullptr);
     pthread_join(dashboard_updater_thread, nullptr);
     pthread_join(crisis_monitor_thread, nullptr);
