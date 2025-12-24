@@ -10,9 +10,9 @@
 using namespace std;
 
 int main() {
-    std::cout << "╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║          Simple pthread Test - Airport Infrastructure         ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "╔═══════════════════════════════════════════════════════════════╗\n";
+    cout << "║          Simple pthread Test - Airport Infrastructure         ║\n";
+    cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
     
     // Initialize simulation engine
     SimulationEngine* engine = new SimulationEngine();
@@ -21,10 +21,10 @@ int main() {
     Logger* logger = Logger::get_instance();
     logger->log_event("=== Simple Test Started ===");
     
-    std::cout << "Creating test flights...\n";
+    cout << "Creating test flights...\n";
     
     // Create 5 test flights with different aircraft types
-    std::vector<Flight*> test_flights;
+    vector<Flight*> test_flights;
     
     // Flight 1: A380 (Heavy, needs large gate, international)
     Aircraft* ac1 = new Aircraft(A380);
@@ -51,15 +51,15 @@ int main() {
     Flight* f5 = new Flight("PVT500", ac5, DOMESTIC, 120, 4200);
     test_flights.push_back(f5);
     
-    std::cout << "Created " << test_flights.size() << " test flights\n";
-    std::cout << "  - " << f1->flight_id << " (" << ac1->get_type_name() << ")\n";
-    std::cout << "  - " << f2->flight_id << " (" << ac2->get_type_name() << ")\n";
-    std::cout << "  - " << f3->flight_id << " (" << ac3->get_type_name() << ")\n";
-    std::cout << "  - " << f4->flight_id << " (" << ac4->get_type_name() << ")\n";
-    std::cout << "  - " << f5->flight_id << " (" << ac5->get_type_name() << ")\n\n";
+    cout << "Created " << test_flights.size() << " test flights\n";
+    cout << "  - " << f1->flight_id << " (" << ac1->get_type_name() << ")\n";
+    cout << "  - " << f2->flight_id << " (" << ac2->get_type_name() << ")\n";
+    cout << "  - " << f3->flight_id << " (" << ac3->get_type_name() << ")\n";
+    cout << "  - " << f4->flight_id << " (" << ac4->get_type_name() << ")\n";
+    cout << "  - " << f5->flight_id << " (" << ac5->get_type_name() << ")\n\n";
     
     // Create FlightArrivalEvents and add to event queue
-    std::cout << "Scheduling arrival events...\n";
+    cout << "Scheduling arrival events...\n";
     
     for (size_t i = 0; i < test_flights.size(); i++) {
         Flight* flight = test_flights[i];
@@ -68,16 +68,16 @@ int main() {
         FlightArrivalEvent* event = new FlightArrivalEvent(flight, engine, arrival_time);
         engine->get_event_queue()->push(event);
         
-        std::cout << "  - Scheduled " << flight->flight_id << " at time " << arrival_time << "\n";
+        cout << "  - Scheduled " << flight->flight_id << " at time " << arrival_time << "\n";
     }
     
-    std::cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║                    Starting Simulation                        ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
+    cout << "║                    Starting Simulation                        ║\n";
+    cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
     
-    std::cout << "Watch logs/ directory for detailed output...\n";
-    std::cout << "  - logs/events.log (all events)\n";
-    std::cout << "  - logs/scheduling.log (scheduling decisions)\n\n";
+    cout << "Watch logs/ directory for detailed output...\n";
+    cout << "  - logs/events.log (all events)\n";
+    cout << "  - logs/scheduling.log (scheduling decisions)\n\n";
     
     // Start simulation engine (will create threads)
     pthread_t sim_thread;
@@ -88,31 +88,31 @@ int main() {
     }, engine);
     
     // Let simulation run for 60 seconds
-    std::cout << "Running simulation for 60 seconds...\n\n";
+    cout << "Running simulation for 60 seconds...\n\n";
     sleep(60);
     
     // Stop simulation
-    std::cout << "\nStopping simulation...\n";
+    cout << "\nStopping simulation...\n";
     engine->stop();
     pthread_join(sim_thread, nullptr);
     
-    std::cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║                    Simulation Complete                        ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
+    cout << "║                    Simulation Complete                        ║\n";
+    cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
     
     // Print summary
-    std::cout << "Test Summary:\n";
-    std::cout << "  Total Flights: " << test_flights.size() << "\n";
+    cout << "Test Summary:\n";
+    cout << "  Total Flights: " << test_flights.size() << "\n";
     
     int completed = 0;
     for (Flight* f : test_flights) {
         if (f->status == DEPARTED) {
             completed++;
         }
-        std::cout << "  - " << f->flight_id << ": " << f->get_status_string() << "\n";
+        cout << "  - " << f->flight_id << ": " << f->get_status_string() << "\n";
     }
     
-    std::cout << "\n  Completed: " << completed << "/" << test_flights.size() << "\n";
+    cout << "\n  Completed: " << completed << "/" << test_flights.size() << "\n";
     
     // Cleanup
     delete engine;
@@ -121,8 +121,8 @@ int main() {
         delete f;
     }
     
-    std::cout << "\nCheck logs/ directory for detailed pthread behavior!\n";
-    std::cout << "\n✓ Test finished successfully\n\n";
+    cout << "\nCheck logs/ directory for detailed pthread behavior!\n";
+    cout << "\n✓ Test finished successfully\n\n";
     
     return 0;
 }

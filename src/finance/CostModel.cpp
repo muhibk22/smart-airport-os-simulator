@@ -85,7 +85,7 @@ void CostModel::check_budget() {
         
         if (!budget_warning_logged) {
             budget_warning_logged = true;
-            std::ostringstream log_msg;
+            ostringstream log_msg;
             log_msg << "[BUDGET] WARNING: Daily budget exceeded! Current: $" 
                     << total << " / Budget: $" << DAILY_BUDGET;
             Logger::get_instance()->log_event(log_msg.str());

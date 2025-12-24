@@ -3,13 +3,15 @@
 #include <cstdlib>
 #include <csignal>
 
+using namespace std;
+
 // Global pointer for signal handler cleanup
 static SimulationEngine* g_engine = nullptr;
 static volatile sig_atomic_t g_shutdown_requested = 0;
 
 // Signal handler for graceful shutdown (prevents zombie processes)
 void signal_handler(int signum) {
-    std::cout << "\n[SIGNAL] Received signal " << signum << " - shutting down gracefully..." << std::endl;
+    cout << "\n[SIGNAL] Received signal " << signum << " - shutting down gracefully..." << endl;
     g_shutdown_requested = 1;
     if (g_engine) {
         g_engine->stop();
@@ -24,9 +26,9 @@ int main(int argc, char** argv) {
     signal(SIGBREAK, signal_handler); // Windows console close
     #endif
     
-    std::cout << "╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║       Smart Airport OS Simulator - Starting Up               ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "╔═══════════════════════════════════════════════════════════════╗\n";
+    cout << "║       Smart Airport OS Simulator - Starting Up               ║\n";
+    cout << "╚═══════════════════════════════════════════════════════════════╝\n\n";
     
     // Initialize simulation engine
     SimulationEngine* engine = new SimulationEngine();
@@ -35,15 +37,15 @@ int main(int argc, char** argv) {
     try {
         engine->initialize();
         
-        std::cout << "Press Enter to start simulation (Ctrl+C to exit)...\n";
-        std::cin.get();
+        cout << "Press Enter to start simulation (Ctrl+C to exit)...\n";
+        cin.get();
         
         if (!g_shutdown_requested) {
             engine->run();
         }
         
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
         g_engine = nullptr;
         delete engine;
         return 1;
@@ -52,9 +54,10 @@ int main(int argc, char** argv) {
     g_engine = nullptr;
     delete engine;
     
-    std::cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║       Simulation Complete - Check logs/ directory             ║\n";
-    std::cout << "╚═══════════════════════════════════════════════════════════════╝\n";
+    cout << "\n╔═══════════════════════════════════════════════════════════════╗\n";
+    cout << "║       Simulation Complete - Check logs/ directory             ║\n";
+    cout << "╚═══════════════════════════════════════════════════════════════╝\n";
     
     return 0;
 }
+
