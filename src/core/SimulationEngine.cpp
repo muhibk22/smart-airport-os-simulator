@@ -152,13 +152,13 @@ void SimulationEngine::generate_initial_flights() {
         new Aircraft(A380)       // Heavy international
     };
     
-    // Create initial flights
+    // Create initial flights - arrival times in near future (5-25 seconds)
     vector<Flight*> flights = {
-        new Flight("AA100", aircraft[0], INTERNATIONAL, 300, 1800),  // Arrive at 5 min, depart at 30 min
-        new Flight("UA200", aircraft[1], DOMESTIC, 600, 2400),       // Arrive at 10 min, depart at 40 min
-        new Flight("DL300", aircraft[2], DOMESTIC, 900, 3000),       // Arrive at 15 min, depart at 50 min
-        new Flight("PVT500", aircraft[3], DOMESTIC, 1200, 3600),     // Arrive at 20 min, depart at 60 min
-        new Flight("BA400", aircraft[4], INTERNATIONAL, 1500, 4200)  // Arrive at 25 min, depart at 70 min
+        new Flight("AA100", aircraft[0], INTERNATIONAL, 5, 300),    // Arrive at 5s, depart at 5min
+        new Flight("UA200", aircraft[1], DOMESTIC, 10, 360),        // Arrive at 10s, depart at 6min
+        new Flight("DL300", aircraft[2], DOMESTIC, 15, 420),        // Arrive at 15s, depart at 7min
+        new Flight("PVT500", aircraft[3], DOMESTIC, 20, 480),       // Arrive at 20s, depart at 8min
+        new Flight("BA400", aircraft[4], INTERNATIONAL, 25, 540)    // Arrive at 25s, depart at 9min
     };
     
     // Schedule arrival events
