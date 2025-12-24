@@ -181,7 +181,7 @@ go_around_retry:
     log_msg << "[FLIGHT] " << flight->flight_id << " landing on runway " << runway->get_name();
     logger->log_event(log_msg.str());
     
-    usleep(500000); // 0.5s landing - faster turnaround
+    sleep(3); // 3s landing - realistic timing
     
     flight->actual_arrival_time = engine->get_time_manager()->get_current_time();
     
@@ -271,7 +271,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << fuel_truck->get_name() << " - refueling";
         logger->log_resource(log_msg.str());
-        usleep(200000); // 0.2s refueling
+        sleep(2); // 2s refueling - realistic timing
         res_mgr->release_resource(fuel_truck);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released fuel truck - refueling complete";
@@ -305,7 +305,7 @@ go_around_retry:
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " acquired " << cleaning->get_name() << " - cleaning";
         logger->log_resource(log_msg.str());
-        usleep(200000); // 0.2s cleaning
+        sleep(1); // 1s cleaning
         res_mgr->release_resource(cleaning);
         log_msg.str("");
         log_msg << "[RESOURCE] " << flight->flight_id << " released cleaning crew - complete";

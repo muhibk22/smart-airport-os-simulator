@@ -106,26 +106,17 @@ void SimulationEngine::initialize_airport() {
     
     logger->log_event("[SimulationEngine] Created 4 runways");
     
-    // Create gates
+    // Create gates (reduced to 8 for realistic gate utilization)
     gate_manager->add_gate(new Gate(0, GATE_INTERNATIONAL, GATE_LARGE, true));
     gate_manager->add_gate(new Gate(1, GATE_INTERNATIONAL, GATE_LARGE, true));
     gate_manager->add_gate(new Gate(2, GATE_INTERNATIONAL, GATE_HEAVY, true));
     gate_manager->add_gate(new Gate(3, GATE_INTERNATIONAL, GATE_HEAVY, true));
-    gate_manager->add_gate(new Gate(4, GATE_INTERNATIONAL, GATE_HEAVY, true));
+    gate_manager->add_gate(new Gate(4, GATE_INTERNATIONAL, GATE_MEDIUM, true));
+    gate_manager->add_gate(new Gate(5, GATE_DOMESTIC, GATE_MEDIUM, true));
+    gate_manager->add_gate(new Gate(6, GATE_DOMESTIC, GATE_MEDIUM, true));
+    gate_manager->add_gate(new Gate(7, GATE_DOMESTIC, GATE_SMALL, false));
     
-    for (int i = 5; i < 10; i++) {
-        gate_manager->add_gate(new Gate(i, GATE_INTERNATIONAL, GATE_MEDIUM, true));
-    }
-    
-    for (int i = 10; i < 15; i++) {
-        gate_manager->add_gate(new Gate(i, GATE_DOMESTIC, GATE_MEDIUM, true));
-    }
-    
-    for (int i = 15; i < 20; i++) {
-        gate_manager->add_gate(new Gate(i, GATE_DOMESTIC, GATE_SMALL, false));
-    }
-    
-    logger->log_event("[SimulationEngine] Created 20 gates");
+    logger->log_event("[SimulationEngine] Created 8 gates");
     
     // Create taxiway graph (simplified)
     for (int i = 0; i < 10; i++) {
@@ -236,7 +227,7 @@ void* SimulationEngine::dashboard_updater_func(void* arg) {
         
         // Calculate utilization (0.0 to 1.0 - dashboard multiplies by 100)
         metrics.runway_utilization = (4.0 - metrics.available_runways) / 4.0;
-        metrics.gate_utilization = (20.0 - metrics.available_gates) / 20.0;
+        metrics.gate_utilization = (8.0 - metrics.available_gates) / 8.0;
         
         metrics.total_flights_handled = engine->total_flights_handled.load();
         
@@ -375,8 +366,8 @@ void* SimulationEngine::flight_generator_func(void* arg) {
     const char* airlines[] = {"AA", "UA", "DL", "BA", "LH", "AF", "EK", "SQ", "QF", "CX"};
     
     while (engine->simulation_running) {
-        // Generate a new flight every 2-5 real seconds (20-50 sim seconds)
-        int delay_seconds = 2 + (rand() % 4);  // 2-5 seconds
+        // Generate a new flight every 8-15 real seconds (slower rate for realism)
+        int delay_seconds = 8 + (rand() % 8);  // 8-15 seconds
         sleep(delay_seconds);
         
         if (!engine->simulation_running) break;

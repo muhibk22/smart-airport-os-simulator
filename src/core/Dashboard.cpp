@@ -166,7 +166,7 @@ void Dashboard::display() {
               << std::fixed << std::setprecision(1) << std::setw(5) << runway_pct << "%\n";
     
     std::cout << "  │  " << BOLD << "Gates:    " << RESET 
-              << std::setw(2) << (20 - metrics.available_gates) << "/20 in use  "
+              << std::setw(2) << (8 - metrics.available_gates) << "/8 in use   "
               << create_progress_bar(gate_pct, 15) << " "
               << std::fixed << std::setprecision(1) << std::setw(5) << gate_pct << "%\n";
     
