@@ -103,6 +103,23 @@ go_around_retry:
     log_msg << "[FLIGHT] " << flight->flight_id << " approaching, requesting runway";
     logger->log_event(log_msg.str());
     
+    // REQ-5: Acquire ATC clearance before landing
+    int atc_attempts = 0;
+    while (!engine->acquire_atc_clearance() && atc_attempts < 10) {
+        log_msg.str("");
+        log_msg << "[ATC] Flight " << flight->flight_id << " waiting for ATC clearance (attempt " << (atc_attempts + 1) << ")";
+        logger->log_event(log_msg.str());
+        usleep(500000);  // Wait 0.5s before retry
+        atc_attempts++;
+    }
+    
+    if (atc_attempts >= 10) {
+        log_msg.str("");
+        log_msg << "[ATC] Flight " << flight->flight_id << " - ATC clearance timeout, triggering go-around";
+        logger->log_event(log_msg.str());
+        // Fall through to go-around logic
+    }
+    
     // REQ-1: Check weather safety before landing
     bool weather_unsafe = false;
     if (crisis_mgr) {
@@ -196,6 +213,7 @@ go_around_retry:
     logger->log_event(log_msg.str());
     
     engine->decrement_flights_landing();  // No longer landing
+    engine->release_atc_clearance();      // REQ-5: Release ATC after landing
     
     // ===== PHASE 4: TAXIING TO GATE =====
     flight->status = TAXIING_TO_GATE;

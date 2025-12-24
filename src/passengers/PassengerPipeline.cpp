@@ -1,4 +1,7 @@
 #include "PassengerPipeline.h"
+#include "../core/Logger.h"
+#include <sstream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -25,11 +28,43 @@ void PassengerPipeline::add_arrival(PassengerGroup* group) {
 
 void PassengerPipeline::process_checkin(long long current_time) {
     pthread_mutex_lock(&pipeline_mutex);
+    Logger* logger = Logger::get_instance();
     
     int processed = 0;
     while (!arrival_queue.empty() && processed < checkin_counters) {
         PassengerGroup* g = arrival_queue.front();
         arrival_queue.pop();
+        
+        // REQ-3: VIP / Special Passenger Handling
+        ostringstream log_msg;
+        int base_time_ms = 500000;  // 0.5s base processing time
+        
+        if (g->is_vip()) {
+            // VIP gets 0.5x processing time (fast-track)
+            base_time_ms = (int)(base_time_ms * g->get_processing_multiplier());
+            log_msg << "[VIP] Fast-tracking " << g->get_count() << " VIP passengers for flight " << g->get_flight_id();
+            logger->log_event(log_msg.str());
+        }
+        
+        if (g->is_disabled()) {
+            // Disabled passengers get extra assistance delay
+            log_msg.str("");
+            log_msg << "[SPECIAL] Wheelchair/assistance provided for " << g->get_count() << " disabled passengers, flight " << g->get_flight_id();
+            logger->log_event(log_msg.str());
+            usleep(g->get_assistance_delay() * 1000);  // Add assistance delay
+        }
+        
+        if (g->is_unaccompanied_minor()) {
+            log_msg.str("");
+            log_msg << "[SPECIAL] Escort assigned for " << g->get_count() << " unaccompanied minors, flight " << g->get_flight_id();
+            logger->log_event(log_msg.str());
+        }
+        
+        // Apply processing time
+        pthread_mutex_unlock(&pipeline_mutex);
+        usleep(base_time_ms);
+        pthread_mutex_lock(&pipeline_mutex);
+        
         g->record_check_in(current_time);
         security_queue.push(g);
         processed++;
@@ -40,11 +75,23 @@ void PassengerPipeline::process_checkin(long long current_time) {
 
 void PassengerPipeline::process_security(long long current_time) {
     pthread_mutex_lock(&pipeline_mutex);
+    Logger* logger = Logger::get_instance();
     
     int processed = 0;
     while (!security_queue.empty() && processed < security_lanes) {
         PassengerGroup* g = security_queue.front();
         security_queue.pop();
+        
+        // REQ-3: VIP gets priority security lane
+        int security_time_ms = 300000;  // 0.3s base
+        if (g->is_vip()) {
+            security_time_ms = (int)(security_time_ms * g->get_processing_multiplier());
+        }
+        
+        pthread_mutex_unlock(&pipeline_mutex);
+        usleep(security_time_ms);
+        pthread_mutex_lock(&pipeline_mutex);
+        
         g->set_status(PAX_AT_GATE);
         gate_queue.push(g);
         processed++;
