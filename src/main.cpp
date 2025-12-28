@@ -18,7 +18,7 @@ void signal_handler(int signum) {
     }
 }
 
-int main(int argc, char** argv) {
+int main() {
     // Register signal handlers for clean shutdown
     signal(SIGINT, signal_handler);   // Ctrl+C
     signal(SIGTERM, signal_handler);  // Terminal close
