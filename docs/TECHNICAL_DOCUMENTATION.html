@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Airport OS Simulator - Technical Documentation</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #0f172a;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0d1117;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .nav h2 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .nav ul {
+            list-style: none;
+        }
+
+        .nav li {
+            margin: 5px 0;
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav .section-title {
+            color: var(--text);
+            font-weight: 600;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1200px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(6, 182, 212, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::before {
+            content: '';
+            width: 8px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        h3 {
+            color: var(--primary-light);
+            font-size: 1.4rem;
+            margin: 30px 0 15px;
+        }
+
+        h4 {
+            color: var(--success);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--bg-code);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #e6db74;
+        }
+
+        .inline-code {
+            background: var(--bg-code);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        /* Concept Cards */
+        .concept-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 64, 175, 0.2) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .concept-card h4 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        /* Module List */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+        }
+
+        .module-card h4 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        /* File Reference */
+        .file-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .file-name {
+            font-family: 'Consolas', monospace;
+            color: var(--success);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        /* Diagram */
+        .diagram {
+            background: var(--bg-code);
+            padding: 30px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            color: var(--accent);
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert-info {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-primary { background: var(--primary); color: white; }
+        .badge-success { background: var(--success); color: white; }
+        .badge-warning { background: var(--warning); color: black; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .nav {
+                display: none;
+            }
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <h2>📘 Documentation</h2>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li class="section-title">File Reference</li>
+            <li><a href="#core-module">Core Module</a></li>
+            <li><a href="#airport-module">Airport Module</a></li>
+            <li><a href="#scheduling-module">Scheduling Module</a></li>
+            <li><a href="#memory-module">Memory Module</a></li>
+            <li><a href="#resources-module">Resources Module</a></li>
+            <li><a href="#passengers-module">Passengers Module</a></li>
+            <li><a href="#crew-module">Crew Module</a></li>
+            <li><a href="#finance-module">Finance Module</a></li>
+            <li><a href="#crisis-module">Crisis Module</a></li>
+            <li class="section-title">OS Concepts</li>
+            <li><a href="#threads">Threads</a></li>
+            <li><a href="#mutexes">Mutexes</a></li>
+            <li><a href="#condition-vars">Condition Variables</a></li>
+            <li><a href="#atomics">Atomic Operations</a></li>
+            <li><a href="#deadlock">Deadlock</a></li>
+            <li><a href="#virtual-memory">Virtual Memory</a></li>
+            <li><a href="#tlb">TLB</a></li>
+            <li><a href="#page-replacement">Page Replacement</a></li>
+            <li><a href="#scheduling-concepts">Scheduling</a></li>
+            <li class="section-title">Architecture</li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#algorithms">Algorithms</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Header -->
+        <header class="header">
+            <h1>✈️ Smart Airport OS Simulator</h1>
+            <p>Complete Technical Documentation & OS Concepts Learning Guide</p>
+        </header>
+
+        <!-- Overview Section -->
+        <section id="overview">
+            <h2>Project Overview</h2>
+            
+            <div class="card">
+                <h4 class="card-title">🎯 What Does This Simulator Do?</h4>
+                <p>The Smart Airport Operations Management System Simulator is a sophisticated multi-threaded C++ application that simulates real-world airport operations while demonstrating key Operating System concepts.</p>
+                
+                <div class="module-grid">
+                    <div class="module-card">
+                        <h4>🛫 4 Runways</h4>
+                        <p>Handle arrivals and departures with wake turbulence separation</p>
+                    </div>
+                    <div class="module-card">
+                        <h4>🚪 8 Gates</h4>
+                        <p>Different sizes for different aircraft with compatibility checking</p>
+                    </div>
+                    <div class="module-card">
+                        <h4>👷 Ground Crews</h4>
+                        <p>Refueling, catering, cleaning, baggage handling</p>
+                    </div>
+                    <div class="module-card">
+                        <h4>👥 Passengers</h4>
+                        <p>Check-in, security, boarding with VIP handling</p>
+                    </div>
+                    <div class="module-card">
+                        <h4>📡 Air Traffic Control</h4>
+                        <p>4 controllers managing clearances</p>
+                    </div>
+                    <div class="module-card">
+                        <h4>🌦️ Weather Events</h4>
+                        <p>Random weather causing delays and go-arounds</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>💡 Educational Purpose:</strong> This simulator was built to teach OS concepts through practical application - threading, synchronization, memory management, and scheduling.
+            </div>
+        </section>
+
+        <!-- Core Module -->
+        <section id="core-module">
+            <h2>Core Module</h2>
+            <p>The central nervous system of the simulator - manages overall simulation flow and coordination.</p>
+
+            <div class="file-item">
+                <div class="file-name">SimulationEngine.h / SimulationEngine.cpp</div>
+                <p><strong>Purpose:</strong> Central orchestrator of the entire simulation.</p>
+                <ul>
+                    <li>Initializes all airport infrastructure (runways, gates, taxiways)</li>
+                    <li>Creates and manages all manager objects</li>
+                    <li>Spawns 5 main worker threads</li>
+                    <li>Provides atomic counters for tracking flights</li>
+                    <li>Coordinates graceful shutdown</li>
+                </ul>
+                <pre><code>class SimulationEngine {
+    // Manager objects
+    RunwayManager* runway_manager;
+    GateManager* gate_manager;
+    ResourceManager* resource_manager;
+    
+    // Atomic flight counters
+    std::atomic&lt;int&gt; active_flight_count;
+    std::atomic&lt;int&gt; flights_at_gates;
+    std::atomic&lt;int&gt; total_flights_handled;
+    
+    // Thread handles
+    pthread_t event_thread;
+    pthread_t dashboard_thread;
+    pthread_t crisis_thread;
+};</code></pre>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">FlightEvents.h / FlightEvents.cpp</div>
+                <p><strong>Purpose:</strong> Implements the complete flight lifecycle handler.</p>
+                <ul>
+                    <li>Runs in its own thread for each flight</li>
+                    <li>Handles 10 phases: approach → landing → taxi → gate → services → departure</li>
+                    <li>Implements go-around logic for weather/runway issues</li>
+                </ul>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">EventDispatcher.h / EventDispatcher.cpp</div>
+                <p><strong>Purpose:</strong> Event queue processing system with priority handling.</p>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">Dashboard.h / Dashboard.cpp</div>
+                <p><strong>Purpose:</strong> Real-time console display of simulation metrics.</p>
+                <pre><code>╔═══════════════════════════════════════════════════════════╗
+║           SMART AIRPORT OPERATIONS DASHBOARD              ║
+╠═══════════════════════════════════════════════════════════╣
+║  Active Flights: 5    At Gates: 3    Total Handled: 42    ║
+║  Runways: 2/4 in use  ████████░░░░  50.0%                 ║
+║  Gates:   3/8 in use  █████░░░░░░░  37.5%                 ║
+╚═══════════════════════════════════════════════════════════╝</code></pre>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">Logger.h / Logger.cpp</div>
+                <p><strong>Purpose:</strong> Thread-safe logging to multiple files (events.log, resource.log, memory.log, etc.)</p>
+            </div>
+        </section>
+
+        <!-- Airport Module -->
+        <section id="airport-module">
+            <h2>Airport Module</h2>
+            <p>Models physical airport infrastructure - runways, gates, taxiways.</p>
+
+            <div class="file-item">
+                <div class="file-name">Runway.h / Runway.cpp</div>
+                <p><strong>Purpose:</strong> Individual runway with wake turbulence handling.</p>
+                <table>
+                    <tr>
+                        <th>Leading Aircraft</th>
+                        <th>Following Aircraft</th>
+                        <th>Separation</th>
+                    </tr>
+                    <tr><td>HEAVY</td><td>HEAVY</td><td>4 minutes</td></tr>
+                    <tr><td>HEAVY</td><td>MEDIUM</td><td>5 minutes</td></tr>
+                    <tr><td>HEAVY</td><td>LIGHT</td><td>6 minutes</td></tr>
+                    <tr><td>MEDIUM</td><td>LIGHT</td><td>5 minutes</td></tr>
+                </table>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">Gate.h / Gate.cpp</div>
+                <p><strong>Purpose:</strong> Individual gate with size/type compatibility checking.</p>
+                <table>
+                    <tr>
+                        <th>Aircraft Type</th>
+                        <th>Required Gate Size</th>
+                    </tr>
+                    <tr><td>A380</td><td>LARGE only</td></tr>
+                    <tr><td>B777/B747</td><td>LARGE or HEAVY</td></tr>
+                    <tr><td>B737/A320</td><td>HEAVY or MEDIUM</td></tr>
+                    <tr><td>G650/Falcon</td><td>SMALL or REGIONAL</td></tr>
+                </table>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">TaxiwayGraph.h / TaxiwayGraph.cpp</div>
+                <p><strong>Purpose:</strong> Graph-based taxiway navigation with A* pathfinding and gridlock detection.</p>
+            </div>
+        </section>
+
+        <!-- Scheduling Module -->
+        <section id="scheduling-module">
+            <h2>Scheduling Module</h2>
+            <p>Implements the <strong>HMFQ-PPRA</strong> algorithm (Hierarchical Multi-Level Feedback Queue with Predictive Priority Resource Allocation).</p>
+
+            <div class="file-item">
+                <div class="file-name">HMFQQueue.h / HMFQQueue.cpp</div>
+                <p><strong>Purpose:</strong> 5-level priority queue implementation.</p>
+                <pre><code>// Queue assignment based on PIS score
+int get_queue_level(double pis_score) {
+    if (pis_score >= 0.8) return 0;  // Q1 - Critical
+    if (pis_score >= 0.6) return 1;  // Q2 - High
+    if (pis_score >= 0.4) return 2;  // Q3 - Normal
+    if (pis_score >= 0.2) return 3;  // Q4 - Low
+    return 4;                         // Q5 - Background
+}</code></pre>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">PISCalculator.h / PISCalculator.cpp</div>
+                <p><strong>Purpose:</strong> Calculates Predicted Impact Score.</p>
+                <div class="concept-card">
+                    <h4>📊 PIS Formula</h4>
+                    <code>PIS = w1*Urgency + w2*Impact + w3*ResourceNeed + w4*Dependency + w5*Efficiency</code>
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">AgingManager.h / AgingManager.cpp</div>
+                <p><strong>Purpose:</strong> Prevents starvation with exponential aging boost to waiting operations.</p>
+            </div>
+        </section>
+
+        <!-- Memory Module -->
+        <section id="memory-module">
+            <h2>Memory Module</h2>
+            <p>Implements the <strong>AWSC-PPC</strong> algorithm (Adaptive Working Set with Clock-based Page Replacement and Predictive Prefetching with Compression).</p>
+
+            <div class="file-item">
+                <div class="file-name">TLB.h / TLB.cpp</div>
+                <p><strong>Purpose:</strong> Translation Lookaside Buffer - fast cache for address translations.</p>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">ClockReplacer.h / ClockReplacer.cpp</div>
+                <p><strong>Purpose:</strong> Clock (second chance) algorithm for page replacement.</p>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">ThrashingDetector.h / ThrashingDetector.cpp</div>
+                <p><strong>Purpose:</strong> Monitors page fault rate to detect thrashing (>50% fault rate).</p>
+            </div>
+        </section>
+
+        <!-- Resources Module -->
+        <section id="resources-module">
+            <h2>Resources Module</h2>
+            <p>Ground support equipment management with deadlock prevention.</p>
+
+            <div class="concept-card">
+                <h4>🔒 Resource Ordering (Deadlock Prevention)</h4>
+                <p>All threads must acquire resources in this fixed order:</p>
+                <code>GPU → Fuel Truck → Catering → Cleaning → Baggage → Tug</code>
+            </div>
+        </section>
+
+        <!-- OS Concepts: Threads -->
+        <section id="threads">
+            <h2>OS Concept: Threads</h2>
+
+            <div class="concept-card">
+                <h4>What is a Thread?</h4>
+                <p>A <strong>thread</strong> is a unit of execution within a process. Multiple threads share the same memory space but have their own stack and registers.</p>
+            </div>
+
+            <h3>Why Use Threads?</h3>
+            <ul>
+                <li><strong>Parallelism:</strong> Utilize multiple CPU cores</li>
+                <li><strong>Responsiveness:</strong> Keep UI responsive while doing work</li>
+                <li><strong>Efficiency:</strong> Share memory instead of IPC</li>
+            </ul>
+
+            <h3>Thread Creation in POSIX</h3>
+            <pre><code>// Creating a thread
+pthread_t thread_handle;
+pthread_create(&thread_handle, nullptr, thread_function, argument);
+
+// Thread function signature
+void* thread_function(void* arg) {
+    // Do work...
+    return nullptr;
+}
+
+// Waiting for thread to finish
+pthread_join(thread_handle, nullptr);</code></pre>
+        </section>
+
+        <!-- OS Concepts: Mutexes -->
+        <section id="mutexes">
+            <h2>OS Concept: Mutexes & Critical Sections</h2>
+
+            <div class="concept-card">
+                <h4>❌ The Problem: Race Conditions</h4>
+                <pre><code>// DANGEROUS - Race condition!
+int counter = 0;
+
+void* increment(void* arg) {
+    for (int i = 0; i < 1000000; i++) {
+        counter++;  // NOT atomic!
+    }
+    return nullptr;
+}
+// Two threads might give counter < 2000000!</code></pre>
+            </div>
+
+            <div class="concept-card">
+                <h4>✅ The Solution: Mutexes</h4>
+                <pre><code>pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+int counter = 0;
+
+void* safe_increment(void* arg) {
+    for (int i = 0; i < 1000000; i++) {
+        pthread_mutex_lock(&mutex);    // Acquire lock
+        counter++;                      // Critical section
+        pthread_mutex_unlock(&mutex);  // Release lock
+    }
+    return nullptr;
+}
+// Now counter will always be exactly 2000000</code></pre>
+            </div>
+        </section>
+
+        <!-- OS Concepts: Condition Variables -->
+        <section id="condition-vars">
+            <h2>OS Concept: Condition Variables</h2>
+
+            <div class="concept-card">
+                <h4>❌ The Problem: Busy Waiting</h4>
+                <pre><code>// BAD - Wastes CPU!
+while (!runway_available) {
+    // Spin, checking repeatedly
+}</code></pre>
+            </div>
+
+            <div class="concept-card">
+                <h4>✅ The Solution: Condition Variables</h4>
+                <pre><code>pthread_mutex_t mutex;
+pthread_cond_t runway_clear;
+
+void wait_for_runway() {
+    pthread_mutex_lock(&mutex);
+    
+    while (!runway_available) {
+        // Sleep until signaled
+        pthread_cond_wait(&runway_clear, &mutex);
+    }
+    
+    runway_available = false;
+    pthread_mutex_unlock(&mutex);
+}
+
+void release_runway() {
+    pthread_mutex_lock(&mutex);
+    runway_available = true;
+    pthread_cond_signal(&runway_clear);  // Wake one waiter
+    pthread_mutex_unlock(&mutex);
+}</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Important:</strong> Always use <code>while</code> instead of <code>if</code> due to spurious wakeups!
+            </div>
+        </section>
+
+        <!-- OS Concepts: Atomics -->
+        <section id="atomics">
+            <h2>OS Concept: Atomic Operations</h2>
+
+            <p>Atomic operations are indivisible - they complete entirely or not at all.</p>
+
+            <pre><code>std::atomic&lt;int&gt; active_flights;
+
+// Atomic increment
+active_flights.fetch_add(1);
+active_flights++;  // Same thing
+
+// Atomic decrement
+active_flights.fetch_sub(1);
+
+// Compare-and-swap (CAS)
+int expected = 4;
+bool success = active_flights.compare_exchange_weak(expected, 3);</code></pre>
+        </section>
+
+        <!-- OS Concepts: Deadlock -->
+        <section id="deadlock">
+            <h2>OS Concept: Deadlock</h2>
+
+            <div class="concept-card">
+                <h4>💀 What is Deadlock?</h4>
+                <p>Deadlock occurs when threads are waiting for each other in a cycle:</p>
+                <pre><code>Thread A holds Resource 1, waiting for Resource 2
+Thread B holds Resource 2, waiting for Resource 1
+→ Neither can proceed → DEADLOCK!</code></pre>
+            </div>
+
+            <h3>Four Conditions for Deadlock</h3>
+            <ol>
+                <li><strong>Mutual Exclusion:</strong> Resources can only be held by one thread</li>
+                <li><strong>Hold and Wait:</strong> Thread holds resources while waiting for more</li>
+                <li><strong>No Preemption:</strong> Resources cannot be forcibly taken</li>
+                <li><strong>Circular Wait:</strong> Cycle of threads waiting for each other</li>
+            </ol>
+
+            <h3>Prevention: Resource Ordering</h3>
+            <pre><code>// Define global order
+enum ResourceOrder {
+    GPU = 0,
+    FUEL_TRUCK = 1,
+    CATERING = 2,
+    CLEANING = 3,
+    BAGGAGE = 4,
+    TUG = 5
+};
+
+// All threads acquire in this order - no deadlock possible!</code></pre>
+        </section>
+
+        <!-- OS Concepts: Virtual Memory -->
+        <section id="virtual-memory">
+            <h2>OS Concept: Virtual Memory</h2>
+
+            <div class="concept-card">
+                <h4>📝 What is Virtual Memory?</h4>
+                <p>Virtual memory gives each process the illusion of having its own large, contiguous memory space. Memory is divided into fixed-size <strong>pages</strong> mapped to physical <strong>frames</strong>.</p>
+            </div>
+
+            <h3>Address Translation</h3>
+            <div class="diagram">
+Virtual Address: [Page Number | Offset]
+                     |
+                     v
+              Page Table Lookup
+                     |
+                     v
+Physical Address: [Frame Number | Offset]
+            </div>
+        </section>
+
+        <!-- OS Concepts: TLB -->
+        <section id="tlb">
+            <h2>OS Concept: TLB (Translation Lookaside Buffer)</h2>
+
+            <p>A TLB is a hardware cache of recent page table entries:</p>
+
+            <div class="diagram">
+Virtual Address
+      |
+      v
+   TLB Lookup (fast, ~1 cycle)
+      |
+   HIT? ──Yes──> Physical Address
+      |
+     No (TLB Miss)
+      |
+      v
+  Page Table Lookup (slow, ~100 cycles)
+      |
+      v
+  Update TLB, return Physical Address
+            </div>
+
+            <pre><code>class TLB {
+    TLBEntry entries[64];  // Fixed size
+    int hits = 0, misses = 0;
+    
+    int lookup(int virtual_page) {
+        for (int i = 0; i < 64; i++) {
+            if (entries[i].valid && 
+                entries[i].virtual_page == virtual_page) {
+                hits++;
+                return entries[i].physical_frame;  // HIT!
+            }
+        }
+        misses++;
+        return -1;  // MISS
+    }
+};</code></pre>
+        </section>
+
+        <!-- OS Concepts: Page Replacement -->
+        <section id="page-replacement">
+            <h2>OS Concept: Page Replacement</h2>
+
+            <h3>Clock Algorithm (Second Chance)</h3>
+            <p>When physical memory is full, the clock algorithm finds a victim page to evict:</p>
+
+            <pre><code>int ClockReplacer::find_victim() {
+    while (true) {
+        if (frames[clock_hand].reference_bit == 0) {
+            int victim = clock_hand;
+            clock_hand = (clock_hand + 1) % frames.size();
+            return victim;  // Found victim
+        }
+        
+        // Give second chance
+        frames[clock_hand].reference_bit = 0;
+        clock_hand = (clock_hand + 1) % frames.size();
+    }
+}</code></pre>
+
+            <div class="alert alert-info">
+                <strong>💡 Why Clock?</strong> O(1) amortized time, approximates LRU, simple to implement.
+            </div>
+        </section>
+
+        <!-- OS Concepts: Scheduling -->
+        <section id="scheduling-concepts">
+            <h2>OS Concept: Process Scheduling</h2>
+
+            <h3>Multi-Level Feedback Queue (MLFQ)</h3>
+            <div class="diagram">
+Queue 1 (Highest Priority): ─────────────────
+               ↓ Demotion if uses full quantum
+Queue 2: ────────────────────────────────────
+               ↓
+Queue 3: ────────────────────────────────────
+               ↓
+Queue 4: ────────────────────────────────────
+               ↓
+Queue 5 (Lowest Priority): ──────────────────
+
+Rules:
+1. New processes start at Q1
+2. If uses full quantum, demote to lower queue
+3. Aging: promote if waiting too long
+4. Always run highest priority non-empty queue
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works">
+            <h2>How Everything Comes Together</h2>
+
+            <h3>Flight Lifecycle Flow</h3>
+            <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                    FLIGHT LIFECYCLE FLOW                         │
+└─────────────────────────────────────────────────────────────────┘
+
+     Flight Generator → Event Dispatcher → New Flight Thread
+                                                  │
+                                                  ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │ 1. REQUEST ATC CLEARANCE  [atomic decrement]             │
+    │ 2. REQUEST RUNWAY         [mutex protected]              │
+    │ 3. LAND                   [sleep for duration]           │
+    │ 4. RELEASE RUNWAY         [condition variable signal]    │
+    │ 5. REQUEST GATE           [compatibility check]          │
+    │ 6. GROUND SERVICES        [resource ordering]            │
+    │    GPU → Fuel → Catering → Cleaning → Baggage → Tug     │
+    │ 7. RELEASE GATE                                          │
+    │ 8. DEPARTURE              [update statistics]            │
+    └──────────────────────────────────────────────────────────┘
+            </div>
+        </section>
+
+        <!-- Algorithms -->
+        <section id="algorithms">
+            <h2>Algorithms Reference</h2>
+
+            <div class="module-grid">
+                <div class="module-card">
+                    <h4>HMFQ-PPRA Scheduler</h4>
+                    <ul>
+                        <li>5-level priority queue</li>
+                        <li>PIS calculation</li>
+                        <li>Exponential aging</li>
+                        <li>Priority inheritance</li>
+                    </ul>
+                </div>
+                <div class="module-card">
+                    <h4>AWSC-PPC Memory</h4>
+                    <ul>
+                        <li>Working set manager</li>
+                        <li>Clock replacement</li>
+                        <li>Predictive prefetching</li>
+                        <li>Thrashing detection</li>
+                    </ul>
+                </div>
+                <div class="module-card">
+                    <h4>Deadlock Prevention</h4>
+                    <ul>
+                        <li>Resource ordering</li>
+                        <li>Banker's algorithm concepts</li>
+                        <li>Safe state verification</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 40px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 60px;">
+            <p>📚 Smart Airport OS Simulator - Technical Documentation</p>
+            <p>Designed for educational purposes to demonstrate Operating System concepts</p>
+        </footer>
+    </main>
+</body>
+</html>
